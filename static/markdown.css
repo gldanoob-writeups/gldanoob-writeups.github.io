@@ -1,0 +1,285 @@
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --accent: #bb9af7 !important;
+    --background: rgb(29, 31, 38) !important;
+    --blockquote-background: rgb(26, 28, 33) !important;
+    --color: #fff !important;
+    --code-background: rgb(54, 53, 71) !important;
+    --code-color: #dddddd !important;
+    --border-color: hsla(0, 0%, 100%, 0.1) !important;
+    --max-width: min(100%, 60em) !important;
+}
+
+
+body {
+    font-family: 'Fira Code', Monaco, Consolas, Ubuntu Mono, monospace;
+    font-size: 1rem;
+    line-height: 1.64;
+    background-color: var(--background);
+    color: var(--color);
+    font-feature-settings: "liga", "tnum", "case", "calt", "zero", "ss01", "locl", "calt";
+    -webkit-font-smoothing: antialiased;
+    font-variant-ligatures: contextual;
+    -webkit-overflow-scrolling: touch;
+    -webkit-text-size-adjust: 100%;
+    margin: 0;
+    padding: 0 1em;
+    padding-top: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+* {
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    word-wrap: break-word;
+    font-size: 16px;
+}
+
+
+.container {
+    max-width: var(--max-width);
+    min-width: 0;
+    min-height: 0;
+    flex: 1;
+}
+
+/* Reset margin top for elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul,
+pre {
+    margin-top: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 800;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    line-height: 1.25;
+    margin-block-start: 1.75em;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+h1 {
+    font-size: 2em;
+    margin-top: 0;
+    padding-bottom: 0.3em;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+
+h2 {
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+
+
+h3 {
+    margin-block-start: 1.25em;
+    font-size: 1.25em;
+}
+
+h4 {
+    font-size: 1em;
+}
+
+h5 {
+    font-size: 0.875em;
+}
+
+h6 {
+    font-size: 0.85em;
+}
+
+p {
+    margin-block-start: 1.25em;
+    margin-block-end: 1.25em;
+    box-shadow: none !important;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    box-shadow: none !important;
+}
+
+a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    box-shadow: none !important;
+}
+
+sub,
+sup {
+    line-height: 0;
+}
+
+ul ul:first-child,
+ul ol:first-child,
+ol ul:first-child,
+ol ol:first-child {
+    margin-bottom: 0;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 1px solid -webkit-focus-ring-color;
+    outline-offset: -1px;
+}
+
+li p {
+    margin-bottom: 0.7em;
+}
+
+ul,
+ol {
+    margin-bottom: 0.7em;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    border-bottom: 1px solid;
+}
+
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 0.7em;
+}
+
+th {
+    text-align: left;
+    border-bottom: 1px solid;
+}
+
+th,
+td {
+    padding: 5px 10px;
+}
+
+table>tbody>tr+tr>td {
+    border-top: 1px solid;
+}
+
+span.katex-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+}
+
+.katex-html>.newline {
+    height: 0.2em !important;
+}
+
+.katex-display>.katex {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: initial;
+    padding: 1rem;
+}
+
+.katex {
+    white-space: normal;
+    text-indent: 0;
+}
+
+pre {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 0 !important;
+    background-color: inherit !important;
+    padding: 1em 1.2em !important;
+    margin: 1.25em 0 !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+code {
+    font-size: 1rem !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    color: var(--code-color) !important;
+}
+
+code:not(pre code) {
+    background-color: var(--code-background) !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    /* font-size: .95rem !important; */
+    padding: 2px 5px !important;
+}
+
+blockquote {
+    margin: 0;
+    border-radius: 2px;
+    padding: 0.05em 1.5em;
+    border-left: 0.2em solid var(--accent);
+    /* background: none !important; */
+    background: var(--blockquote-background) !important;
+}
+
+blockquote p {}
+
+figure {
+    margin: 0;
+    padding: 0;
+}
+
+img,
+video {
+    margin-block-start: 1.25em;
+    margin-block-end: 1.25em;
+    display: block;
+    margin-left: 1em;
+    margin-right: 1em;
+    max-width: calc(var(--max-width) - 2em);
+    max-height: 60em;
+}
+
+figcaption {
+    display: none;
+}
+
+
+
+@media screen and (max-width: 768px) {
+
+    img,
+    video {
+        margin-left: 0em;
+        margin-right: 0em;
+        max-width: var(--max-width);
+    }
+}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="{{ or .Site.LanguageCode .Site.Language.Lang }}">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
+  <link rel="stylesheet" href="/markdown.css">
+  <link rel="stylesheet" href="/highlight.css">
+  <title>{{ with .Title }}{{ printf "%s | " . }}{{ end }}{{ site.Title }}</title>
+  {{ if .Params.math }}{{ partial "katex.html" . }}{{ end }}
+</head>
+
+<body>
+  {{ block "main" . }}
+
+  {{ end }}
+</body>
+
+</html>

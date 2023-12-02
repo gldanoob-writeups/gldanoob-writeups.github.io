@@ -1,0 +1,11 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'CTF Writeups'
+pluralizelisttitles = false
+
+
+[security.exec]
+allow = ["^dart-sass-embedded$", "^go$", "^npx$", "^postcss$", "^pandoc$"]
+
+[markup]
+defaultMarkdownHandler = "pandoc"
