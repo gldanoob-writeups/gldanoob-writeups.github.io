@@ -1,7 +1,7 @@
 ---
-math: true
-title: "Test"
+title: "HKCERT 2023"
 markup: "pandoc"
+math: true
 ---
 
 # HKCERT CTF 2023 Writeups
@@ -153,13 +153,13 @@ In my case I used `gdb-multiarch` and `pwndbg` as my debugger, and `qemu` to sim
 > "what is this minecraft enchanting table ahh language"
 > \- gldanoob
 
-![image](/hkcert/H15G8LyVa.png =250x)
+![image](/hkcert/H15G8LyVa.png)
 
 I recognized two calls to `puts` (corresponding to the program's output) and one to `gets`, which lets us overwrite an unlimited number of bytes beyond a buffer on the stack (before hitting the stack boundary). 
 
 Let's run `checksec` first for a good measure:
 
-![image](/hkcert/HJF02kx4T.png =350x)
+![image](/hkcert/HJF02kx4T.png)
 
 
 Great. No NX or PIE, which means we can directly inject shellcode into the buffer without leaking an address from the stack via `puts()`. *For some reason* although it has stack protection enabled, the `main()` prolog and epilog doesn't seem to contain the corresponding code for stack canaries.
@@ -172,7 +172,7 @@ https://ctftime.org/writeup/22613
 Instead of chaining the return addresses of the ROP gadgets, like what we do when exploiting an x86 binary, we have to either overwrite `ra` or `t9` with our return address (depending on whether the gadget ends with `jr $ra` or `jalr $t9`), which makes thing harder as there are more registers we have to control. 
 
 What's even worse is that we can't just overwrite `ra` or `t9` with a custom address, as assumably ASLR is enabled on the server and there's no way to *guess* the address of our buffer. Is there any pointer value on the stack we can utilize?
-![image](/hkcert/ry74gge46.png =500x)
+![image](/hkcert/ry74gge46.png)
 
 We observe that at the location `sp+0x1c`, there resides a pointer to `sp` itself (`0x2b2aa7b0`), with the current stack frame belonging to `__libc_start_main`. If we can find a gadget that loads `[sp+0x1c]` into `ra`, we can force the program to start executing code at `sp` which is controllable by us.
 
@@ -228,7 +228,7 @@ r.sendline(payload)
 r.interactive()
 ```
 
-![image](/hkcert/SJfY4-lV6.png =300x)
+![image](/hkcert/SJfY4-lV6.png)
 
 ## Secret Notebook (gldanoob, degendemolisher, vow)
 Just an average web app with password authentication and content hosting. What could go wrong?
@@ -250,7 +250,7 @@ amogos,???????,oi tudo bem?,NULL
 And whenever a user clicks *Retrieve Public Notes*, the `username` and `publicnote` fields get selected and here's what gets returned to the user:
 
 
-![image](/hkcert/H1iV7MbNp.png =500x)
+![image](/hkcert/H1iV7MbNp.png)
 
 ### SQLi Real Estate...?
 

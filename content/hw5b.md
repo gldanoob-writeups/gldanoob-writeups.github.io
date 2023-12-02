@@ -1,4 +1,9 @@
-# Homework 5b Writeup
+---
+title: "HW5B"
+math: true
+---
+
+# Homework 5B Writeup
 
 ### vow vs gldanoob
 

@@ -1,8 +1,9 @@
 ---
+title: "HW4B"
 math: true
 ---
 
-# Homework 4b Writeup
+# Homework 4B Writeup
 
 Best challenge I’ve seen in the course so far. (I might be a little biased)
 

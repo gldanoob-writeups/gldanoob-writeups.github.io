@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
   <link rel="stylesheet" href="/markdown.css">
   <link rel="stylesheet" href="/highlight.css">
-  <title>{{ with .Title }}{{ printf "%s | " . }}{{ end }}{{ site.Title }}</title>
+  <title>{{ or .Title .Site.Title }}{{ if ne .Kind "home" }} | {{ .CurrentSection.Title }}{{ end }}</title>
   {{ if .Params.math }}{{ partial "katex.html" . }}{{ end }}
 </head>
 

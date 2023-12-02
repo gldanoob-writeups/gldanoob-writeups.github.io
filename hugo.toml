@@ -1,4 +1,4 @@
-baseURL = "https://gldanoob.dev/writeup/"
+baseURL = "https://writeup.gldanoob.dev/"
 languageCode = 'en-us'
 title = 'CTF Writeups'
 pluralizelisttitles = false
