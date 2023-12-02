@@ -1,6 +1,11 @@
 deploy:
 	rm -rf public
 	hugo --gc --minify
-	git add public
+	cd public
+	git init
+	git add .
 	git commit -m "deploy: $(shell date)"
-	git push origin `git subtree split --prefix public master`:gh-pages --force
+	git remote add origin https://github.com/gldanoob-writeups/gldanoob-writeups.github.io.git
+	git push --force origin gh-pages
+	rm -rf .git
+	cd ..
