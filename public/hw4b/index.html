@@ -1,0 +1,182 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,minimum-scale=1,initial-scale=1"><link rel=stylesheet href=/markdown.css><link rel=stylesheet href=/highlight.css><title>HW4B | CTF Writeups</title>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js crossorigin=anonymous></script><script>window.onload=()=>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"\\[",right:"\\]",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1}]})</script></head><body><article class=container><h1 id=homework-4b-writeup>Homework 4B Writeup</h1><p>Best challenge I’ve seen in the course so far. (I might be a little
+biased)</p><p>Anyways, attached to the challenge is nothing but a few lines of
+Python:</p><div class=sourceCode id=cb1><pre class="sourceCode python"><code class="sourceCode python"><span id=cb1-1><a href=#cb1-1 aria-hidden=true tabindex=-1></a><span class=im>from</span> Crypto.Util.number <span class=im>import</span> bytes_to_long, long_to_bytes, getPrime</span>
+<span id=cb1-2><a href=#cb1-2 aria-hidden=true tabindex=-1></a><span class=im>import</span> base64</span>
+<span id=cb1-3><a href=#cb1-3 aria-hidden=true tabindex=-1></a><span class=im>from</span> secret <span class=im>import</span> flag, key</span>
+<span id=cb1-4><a href=#cb1-4 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-5><a href=#cb1-5 aria-hidden=true tabindex=-1></a><span class=kw>def</span> cipher(k, m, n):</span>
+<span id=cb1-6><a href=#cb1-6 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> (k <span class=op>*</span> m) <span class=op>%</span> n</span>
+<span id=cb1-7><a href=#cb1-7 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-8><a href=#cb1-8 aria-hidden=true tabindex=-1></a><span class=kw>def</span> xor(k, m):</span>
+<span id=cb1-9><a href=#cb1-9 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> <span class=bu>bytes</span>(a <span class=op>^</span> b <span class=cf>for</span> a, b <span class=kw>in</span> <span class=bu>zip</span>(m, k))</span>
+<span id=cb1-10><a href=#cb1-10 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-11><a href=#cb1-11 aria-hidden=true tabindex=-1></a><span class=kw>def</span> main():</span>
+<span id=cb1-12><a href=#cb1-12 aria-hidden=true tabindex=-1></a>    k, m <span class=op>=</span> bytes_to_long(key), bytes_to_long(flag)</span>
+<span id=cb1-13><a href=#cb1-13 aria-hidden=true tabindex=-1></a>    n <span class=op>=</span> getPrime(<span class=dv>1024</span>)</span>
+<span id=cb1-14><a href=#cb1-14 aria-hidden=true tabindex=-1></a>    <span class=cf>assert</span> m <span class=op>&lt;</span> n <span class=kw>and</span> <span class=bu>len</span>(flag) <span class=op>==</span> <span class=bu>len</span>(key)</span>
+<span id=cb1-15><a href=#cb1-15 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-16><a href=#cb1-16 aria-hidden=true tabindex=-1></a>    c1 <span class=op>=</span> long_to_bytes(cipher(k, m, n))</span>
+<span id=cb1-17><a href=#cb1-17 aria-hidden=true tabindex=-1></a>    c2 <span class=op>=</span> xor(key, flag)</span>
+<span id=cb1-18><a href=#cb1-18 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-19><a href=#cb1-19 aria-hidden=true tabindex=-1></a>    <span class=bu>print</span>(<span class=st>&quot;c1 =&quot;</span>, base64.b64encode(c1).decode())</span>
+<span id=cb1-20><a href=#cb1-20 aria-hidden=true tabindex=-1></a>    <span class=bu>print</span>(<span class=st>&quot;c2 =&quot;</span>, base64.b64encode(c2).decode())</span>
+<span id=cb1-21><a href=#cb1-21 aria-hidden=true tabindex=-1></a>    <span class=bu>print</span>(<span class=st>&quot;n =&quot;</span>, n)</span>
+<span id=cb1-22><a href=#cb1-22 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-23><a href=#cb1-23 aria-hidden=true tabindex=-1></a><span class=cf>if</span> <span class=va>__name__</span> <span class=op>==</span> <span class=st>&#39;__main__&#39;</span>:</span>
+<span id=cb1-24><a href=#cb1-24 aria-hidden=true tabindex=-1></a>    main()</span></code></pre></div><p>and an output of the script:</p><div class=sourceCode id=cb2><pre class="sourceCode python"><code class="sourceCode python"><span id=cb2-1><a href=#cb2-1 aria-hidden=true tabindex=-1></a>c1 <span class=op>=</span> Lrh<span class=op>/</span>EMfrRXqShQQqw<span class=op>+</span>Zd<span class=op>/</span>w6Nn2MwaWT5s0Xvb6AAq<span class=op>+</span>NE4FxIvvPSuzLJbv9VwcJv0F1LlOfnfvc3j<span class=op>/</span>eFM5BWpTujw6dQ8ZtjV6dOqqnLPC1lKdDZEmt5XaINbKe4CIIT37V1qtR2jqy7K1xjCUJJyGkrgFI9vXWyfrQAHo2JSt4<span class=op>=</span></span>
+<span id=cb2-2><a href=#cb2-2 aria-hidden=true tabindex=-1></a>c2 <span class=op>=</span> <span class=op>////////+/</span><span class=dv>33</span><span class=op>/////////////////</span>v<span class=op>////////////////</span><span class=dv>9</span><span class=op>///////</span>f<span class=op>/////////////</span><span class=dv>3</span><span class=op>//</span>f<span class=op>////////////////</span></span>
+<span id=cb2-3><a href=#cb2-3 aria-hidden=true tabindex=-1></a>n <span class=op>=</span> <span class=dv>150095186069281777851468726257751810997446691788728681013850021750670480757667073571298768531705071802820728411143863036993470518226749117889851508979626068982736226357060650073869307154521010066655609905126167748092779979732912821644834005606143609309269768565568485061354218686729973438920060109916387047693</span></span></code></pre></div><p>The goal, obviously, is to decrypt the message from <code>c1</code>,
+<code>c2</code> and then obtain the flag.</p><p>The encryption algorithm implemented by the script (which is very
+simple) could be summarized as:</p><p><span class="math display">\[
+\begin{align} c_1 & \equiv km \mod n \\
+c_2 & = k \oplus m \end{align}
+\]</span></p><p>where <span class="math inline">\(k\)</span> is the key, <span class="math inline">\(m\)</span> the message (with the flag), <span class="math inline">\(n\)</span> a large prime number and <span class="math inline">\(\oplus\)</span> the bitwise XOR operator. Looks
+like we just have to solve the system of equations. Note that <span class="math inline">\(c_1\)</span> and <span class="math inline">\(c_2\)</span> are integer versions of
+<code>c1</code> and <code>c2</code>, which are base64-encoded.</p><p>Looks like we just had to solve the system of equations…</p><h2 id=not-so-easy>Not so easy!</h2><p>We’ll first try to use the method of substitution. Since <span class="math inline">\(k = c_2 \oplus f\)</span> (XOR is self-inverse),
+from (1), we get</p><p><span class="math display">\[
+c_1 \equiv m(c_2 \oplus m) \mod n
+\]</span></p><p>Wait. Multiplying by an XOR? Is there any nice property to simplify
+this?</p><figure><img src=/hw4b/Untitled.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>No useful information. What would WolframAlpha tell us about it?</p><figure><img src=/hw4b/Untitled%201.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>We’re doomed. We can’t do something like <span class="math inline">\(m^{-1}c_1 \equiv c_2 \oplus m\)</span> either,
+since <span class="math inline">\(m\)</span> would appear on both sides
+which makes things worse. If that funny looking circle with a cross was
+just a <span class="math inline">\(+\)</span>, we would’ve solved it in
+seconds. (definitely not foreshadowing)</p><h2 id=bitwise-operations-are-arithmetic-change-my-mind>Bitwise
+operations are arithmetic (change my mind)</h2><figure><img src=/hw4b/Untitled%202.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><figure><img src=/hw4b/Untitled%203.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Wait what? Looks kinda sus.</p><p>To see how they relate, let’s try to add the two binary numbers:</p><pre><code>  1110
++ 1001
+_1____
+ 10111</code></pre><p>What if we removed the carry?</p><pre><code>  1110                       1110
++ 1001  (which is just)  XOR 1001 
+______                   ________
+  0111                       0111</code></pre><p>This fact can be verified by noting the only case where <span class="math inline">\(+\)</span> and <span class="math inline">\(\oplus\)</span> (on two bits) differ, is when both
+operands are <span class="math inline">\(1\)</span>.</p><p>Since the two results look incredibly similar, it might be possible
+to “guess” the sum by just looking at the XOR.</p><pre><code>  ????                       ????
++ ????                   XOR ???? 
+______                   ________
+  ????                       0111</code></pre><p>In the above case, the XOR result has three <span class="math inline">\(1\)</span>’s (which can only be a result of <span class="math inline">\(1 \oplus 0\)</span> or <span class="math inline">\(0 \oplus1\)</span> ), we infer that the last 3
+bits of the operands, when summed, are all <span class="math inline">\(1\)</span>’s without a carry. A possible
+configuration could be:</p><pre><code>  ?001                       ?001
++ ?110                   XOR ?110 
+______                   ________
+  ?111                       0111</code></pre><p>(Note that the sum stays constant no matter which configuration is
+chosen.)</p><p>For the first bit, though, things might get trickier. <span class="math inline">\(0 \oplus 0\)</span> and <span class="math inline">\(1 \oplus 1\)</span> both result in <span class="math inline">\(0\)</span>. As for the sum, we could either have
+<span class="math inline">\(0 + 0\)</span> with no carry, or <span class="math inline">\(1 + 1\)</span>, with a carry to the left. If there
+is a carry bit, it would add <span class="math inline">\(2^{4} =
+16\)</span> to the sum itself.</p><pre><code>  0001                       0001
++ 0110                   XOR 0110 
+______  (first case)     ________
+  0111                       0111</code></pre><pre><code>  1001                       1001
++ 1110                   XOR 1110 
+_1____  (second case)    ________
+ 10111                       0111</code></pre><p>That also means, given a fixed XOR result, whenever it has a <span class="math inline">\(0\)</span> in the <span class="math inline">\(i\)</span>th position [1], the amount of possible
+sums doubles. If we put a <span class="math inline">\(0\)</span> in our
+guessed sum at that position, the actual sum could either be exact or
+differ by <span class="math inline">\(2^{i+1}\)</span> the value of that
+carry bit.</p><p>Luckily, if you look carefully, <code>c2</code> just looks like a
+bunch of slashes (<code>11111</code> in base64), which means most of the
+bits are just gonna be <code>1</code> with a few exceptions.</p><hr><p>Let’s turn <code>c2</code> into a binary string:</p><pre><code>11111111 11111111 11111111 11111111 11111111 11111111 11111011 11111101 
+11110111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 
+11111111 11111111 11111111 11111111 11111111 11111110 11111111 11111111 
+11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 
+11111111 11111111 11111111 01111111 11111111 11111111 11111111 11111111 
+11110111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 
+11111111 11111111 11111111 11011111 11111111 11011111 11111111 11111111 
+11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 
+11111111 11111111</code></pre><p>We can see there are 8 <code>0</code>’s, and the sum <span class="math inline">\(k+m\)</span> could take only <span class="math inline">\(2^8 = 256\)</span> possible values.</p><p>To find out all candidate values for the sum, we select <span class="math inline">\(k \oplus m\)</span> as our first candidate. For
+each <code>0</code> bit at the <span class="math inline">\(i\)</span>th
+position from the right, a new set of candidate values could be
+generated by adding <span class="math inline">\(2^{i+1}\)</span> to the
+existing set.</p><div class=sourceCode id=cb10><pre class="sourceCode python"><code class="sourceCode python"><span id=cb10-1><a href=#cb10-1 aria-hidden=true tabindex=-1></a><span class=co># get positions of all 0 bits in c2</span></span>
+<span id=cb10-2><a href=#cb10-2 aria-hidden=true tabindex=-1></a>bin_c2 <span class=op>=</span> <span class=bu>bin</span>(c2)[<span class=dv>2</span>:]</span>
+<span id=cb10-3><a href=#cb10-3 aria-hidden=true tabindex=-1></a>zero_positions <span class=op>=</span> [i <span class=cf>for</span> i, b <span class=kw>in</span> <span class=bu>enumerate</span>(bin_c2[::<span class=op>-</span><span class=dv>1</span>]) <span class=cf>if</span> b <span class=op>==</span> <span class=st>&#39;0&#39;</span>]</span>
+<span id=cb10-4><a href=#cb10-4 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(zero_positions) <span class=co># [101, 117, 203, 247, 352, 459, 465, 474]</span></span>
+<span id=cb10-5><a href=#cb10-5 aria-hidden=true tabindex=-1></a></span>
+<span id=cb10-6><a href=#cb10-6 aria-hidden=true tabindex=-1></a><span class=co># enumerate all possible k + m values</span></span>
+<span id=cb10-7><a href=#cb10-7 aria-hidden=true tabindex=-1></a>possible_sums <span class=op>=</span> [c2]</span>
+<span id=cb10-8><a href=#cb10-8 aria-hidden=true tabindex=-1></a><span class=cf>for</span> i <span class=kw>in</span> zero_positions:</span>
+<span id=cb10-9><a href=#cb10-9 aria-hidden=true tabindex=-1></a>    possible_sums <span class=op>+=</span> [s <span class=op>+</span> <span class=dv>2</span> <span class=op>**</span> (i<span class=op>+</span><span class=dv>1</span>) <span class=cf>for</span> s <span class=kw>in</span> possible_sums]</span>
+<span id=cb10-10><a href=#cb10-10 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=bu>len</span>(<span class=bu>set</span>(possible_sums))) <span class=co># 256</span></span></code></pre></div><hr><p>[1] The position of LSB is 0 in this context</p><h2 id=time-for-some-high-school-algebra>Time for some high school
+algebra!</h2><p>To simplify the rest of the solution, let’s just <em>assume</em> we
+already have <span class="math inline">\(k +m\)</span>, and we call it
+<span class="math inline">\(s\)</span>. (I do not know how to name
+things) From (2), we get:</p><p><span class="math display">\[
+c_1 \equiv m(s - m) \mod n
+\]</span></p><p>Now we call <em>finally</em> simplify things for a bit.</p><p><span class="math display">\[
+-m^2 + sm - c_1 \equiv 0\mod n \\
+-4m^2 + 4sm - 4c_1 \equiv 0\mod n \\
+-(2m-s)^2+s^2-4c_1 \equiv 0 \mod n \\
+(2m-s)^2 \equiv s^2-4c_1 \mod n
+\]</span></p><p>In case you failed high school math, I used a technique called
+completing the square, in order to obtain the <span class="math inline">\(x^2 \equiv a \mod n\)</span> relation with only
+<span class="math inline">\(x\)</span> unknown. The reason I multiplied
+the whole equation by <span class="math inline">\(4\)</span>, is to
+eliminate any fraction appearing after completing the square, as both
+sides of the modular equivalence must be integers.</p><p>Hold on, a <em>modular quadratic equation</em>? I need to google
+harder for this</p><figure><img src=/hw4b/Untitled%204.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>If we have the correct <span class="math inline">\(s\)</span>, the
+solution must exist. The above could be useful for invalidating
+candidate values of <span class="math inline">\(s\)</span>.</p><figure><img src=/hw4b/Untitled%205.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Looks like we can actually solve for <span class="math inline">\(x\)</span> if <span class="math inline">\(n\)</span> takes specific values. Let’s check…</p><div class=sourceCode id=cb11><pre class="sourceCode python"><code class="sourceCode python"><span id=cb11-1><a href=#cb11-1 aria-hidden=true tabindex=-1></a><span class=op>&gt;&gt;&gt;</span> <span class=bu>print</span>(n <span class=op>%</span> <span class=dv>8</span>)</span>
+<span id=cb11-2><a href=#cb11-2 aria-hidden=true tabindex=-1></a><span class=dv>5</span></span></code></pre></div><p>Now that we have four possible solutions for <span class="math inline">\(x\)</span>, we can just calculate <span class="math inline">\(m \equiv \dfrac{s + x}{2} \mod n\)</span> and
+check if any of the encoded versions of <span class="math inline">\(m\)</span> contains the flag.</p><h2 id=brute-force-the-smart-way>Brute force… the smart way</h2><p>In reality, we don’t actually have the exact <span class="math inline">\(s\)</span>, but possible values of <span class="math inline">\(s\)</span>. We’ll use the ultimate CTF technique —
+test if each candidate for <span class="math inline">\(s\)</span>
+enables us to solve for <span class="math inline">\(m\)</span> that
+contains the flag. Since we only have <span class="math inline">\(2^{8}\)</span> candidates, this algorithm can
+actually find the solution in a matter of seconds. That already works
+way better than just brute-forcing for <span class="math inline">\(k\)</span> naively (which is one of the <span class="math inline">\(2^{256}\)</span> possible values).</p><p>In other words: mafs good.</p><h2 id=solution-script>Solution script</h2><div class=sourceCode id=cb12><pre class="sourceCode python"><code class="sourceCode python"><span id=cb12-1><a href=#cb12-1 aria-hidden=true tabindex=-1></a><span class=im>from</span> base64 <span class=im>import</span> b64decode</span>
+<span id=cb12-2><a href=#cb12-2 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-3><a href=#cb12-3 aria-hidden=true tabindex=-1></a>c1 <span class=op>=</span> <span class=st>&#39;Lrh/EMfrRXqShQQqw+Zd/w6Nn2MwaWT5s0Xvb6AAq+NE4FxIvvPSuzLJbv9VwcJv0F1LlOfnfvc3j/eFM5BWpTujw6dQ8ZtjV6dOqqnLPC1lKdDZEmt5XaINbKe4CIIT37V1qtR2jqy7K1xjCUJJyGkrgFI9vXWyfrQAHo2JSt4=&#39;</span></span>
+<span id=cb12-4><a href=#cb12-4 aria-hidden=true tabindex=-1></a>c2 <span class=op>=</span> <span class=st>&#39;////////+/33/////////////////v////////////////9///////f/////////////3//f////////////////&#39;</span></span>
+<span id=cb12-5><a href=#cb12-5 aria-hidden=true tabindex=-1></a>n <span class=op>=</span> <span class=dv>150095186069281777851468726257751810997446691788728681013850021750670480757667073571298768531705071802820728411143863036993470518226749117889851508979626068982736226357060650073869307154521010066655609905126167748092779979732912821644834005606143609309269768565568485061354218686729973438920060109916387047693</span></span>
+<span id=cb12-6><a href=#cb12-6 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-7><a href=#cb12-7 aria-hidden=true tabindex=-1></a><span class=kw>def</span> xor(k, m):</span>
+<span id=cb12-8><a href=#cb12-8 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> <span class=bu>bytes</span>(a <span class=op>^</span> b <span class=cf>for</span> a, b <span class=kw>in</span> <span class=bu>zip</span>(m, k))</span>
+<span id=cb12-9><a href=#cb12-9 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-10><a href=#cb12-10 aria-hidden=true tabindex=-1></a><span class=kw>def</span> int_to_bytes(x: <span class=bu>int</span>) <span class=op>-&gt;</span> <span class=bu>bytes</span>:</span>
+<span id=cb12-11><a href=#cb12-11 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> x.to_bytes((x.bit_length() <span class=op>+</span> <span class=dv>7</span>) <span class=op>//</span> <span class=dv>8</span>, <span class=st>&#39;big&#39;</span>)</span>
+<span id=cb12-12><a href=#cb12-12 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-13><a href=#cb12-13 aria-hidden=true tabindex=-1></a><span class=co># decode from base64 to int</span></span>
+<span id=cb12-14><a href=#cb12-14 aria-hidden=true tabindex=-1></a>c1 <span class=op>=</span> <span class=bu>int</span>.from_bytes(b64decode(c1))</span>
+<span id=cb12-15><a href=#cb12-15 aria-hidden=true tabindex=-1></a>c2 <span class=op>=</span> <span class=bu>int</span>.from_bytes(b64decode(c2))</span>
+<span id=cb12-16><a href=#cb12-16 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-17><a href=#cb12-17 aria-hidden=true tabindex=-1></a>bin_c2 <span class=op>=</span> <span class=bu>bin</span>(c2)[<span class=dv>2</span>:]</span>
+<span id=cb12-18><a href=#cb12-18 aria-hidden=true tabindex=-1></a>zero_positions <span class=op>=</span> [i <span class=cf>for</span> i, b <span class=kw>in</span> <span class=bu>enumerate</span>(bin_c2[::<span class=op>-</span><span class=dv>1</span>]) <span class=cf>if</span> b <span class=op>==</span> <span class=st>&#39;0&#39;</span>]</span>
+<span id=cb12-19><a href=#cb12-19 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-20><a href=#cb12-20 aria-hidden=true tabindex=-1></a>possible_sums <span class=op>=</span> [c2]</span>
+<span id=cb12-21><a href=#cb12-21 aria-hidden=true tabindex=-1></a><span class=cf>for</span> i <span class=kw>in</span> zero_positions:</span>
+<span id=cb12-22><a href=#cb12-22 aria-hidden=true tabindex=-1></a>    possible_sums <span class=op>+=</span> [s <span class=op>+</span> <span class=dv>2</span> <span class=op>**</span> (i<span class=op>+</span><span class=dv>1</span>) <span class=cf>for</span> s <span class=kw>in</span> possible_sums]</span>
+<span id=cb12-23><a href=#cb12-23 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-24><a href=#cb12-24 aria-hidden=true tabindex=-1></a><span class=cf>for</span> s <span class=kw>in</span> possible_sums:</span>
+<span id=cb12-25><a href=#cb12-25 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-26><a href=#cb12-26 aria-hidden=true tabindex=-1></a>    a <span class=op>=</span> s <span class=op>**</span> <span class=dv>2</span> <span class=op>-</span> <span class=dv>4</span> <span class=op>*</span> c1</span>
+<span id=cb12-27><a href=#cb12-27 aria-hidden=true tabindex=-1></a>    <span class=cf>assert</span> a <span class=op>&gt;</span> n</span>
+<span id=cb12-28><a href=#cb12-28 aria-hidden=true tabindex=-1></a>    a <span class=op>=</span> a <span class=op>%</span> n</span>
+<span id=cb12-29><a href=#cb12-29 aria-hidden=true tabindex=-1></a>    <span class=co># test if a is quadratic residue mod n</span></span>
+<span id=cb12-30><a href=#cb12-30 aria-hidden=true tabindex=-1></a>    <span class=cf>if</span> <span class=bu>pow</span>(a, (n <span class=op>-</span> <span class=dv>1</span>) <span class=op>//</span> <span class=dv>2</span>, n) <span class=op>==</span> <span class=dv>1</span>:</span>
+<span id=cb12-31><a href=#cb12-31 aria-hidden=true tabindex=-1></a>        <span class=co># since n = 5 mod 8, we can have one of the following solutions</span></span>
+<span id=cb12-32><a href=#cb12-32 aria-hidden=true tabindex=-1></a>        <span class=co># depending on if a is a quintic residue mod n</span></span>
+<span id=cb12-33><a href=#cb12-33 aria-hidden=true tabindex=-1></a>        x1 <span class=op>=</span> <span class=bu>pow</span>(a, (n <span class=op>+</span> <span class=dv>3</span>) <span class=op>//</span> <span class=dv>8</span>, n) <span class=op>*</span> <span class=bu>pow</span>(<span class=dv>2</span>, (n <span class=op>-</span> <span class=dv>1</span>) <span class=op>//</span> <span class=dv>4</span>, n) <span class=op>%</span> n</span>
+<span id=cb12-34><a href=#cb12-34 aria-hidden=true tabindex=-1></a>        x2 <span class=op>=</span> <span class=bu>pow</span>(a, (n <span class=op>+</span> <span class=dv>3</span>) <span class=op>//</span> <span class=dv>8</span>, n)</span>
+<span id=cb12-35><a href=#cb12-35 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-36><a href=#cb12-36 aria-hidden=true tabindex=-1></a>        <span class=co># I have no idea how to check for quintic residues</span></span>
+<span id=cb12-37><a href=#cb12-37 aria-hidden=true tabindex=-1></a>        <span class=cf>if</span> <span class=bu>pow</span>(x1, <span class=dv>2</span>, n) <span class=op>==</span> a:</span>
+<span id=cb12-38><a href=#cb12-38 aria-hidden=true tabindex=-1></a>            x <span class=op>=</span> x1</span>
+<span id=cb12-39><a href=#cb12-39 aria-hidden=true tabindex=-1></a>        <span class=cf>else</span>:</span>
+<span id=cb12-40><a href=#cb12-40 aria-hidden=true tabindex=-1></a>            x <span class=op>=</span> x2</span>
+<span id=cb12-41><a href=#cb12-41 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-42><a href=#cb12-42 aria-hidden=true tabindex=-1></a>        <span class=co># check if x is a solution</span></span>
+<span id=cb12-43><a href=#cb12-43 aria-hidden=true tabindex=-1></a>        <span class=cf>assert</span> <span class=bu>pow</span>(x, <span class=dv>2</span>, n) <span class=op>==</span> a</span>
+<span id=cb12-44><a href=#cb12-44 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-45><a href=#cb12-45 aria-hidden=true tabindex=-1></a>        <span class=co># m should be an integer</span></span>
+<span id=cb12-46><a href=#cb12-46 aria-hidden=true tabindex=-1></a>        <span class=cf>if</span> (x <span class=op>+</span> s) <span class=op>%</span> <span class=dv>2</span> <span class=op>==</span> <span class=dv>1</span>:</span>
+<span id=cb12-47><a href=#cb12-47 aria-hidden=true tabindex=-1></a>            <span class=cf>continue</span></span>
+<span id=cb12-48><a href=#cb12-48 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-49><a href=#cb12-49 aria-hidden=true tabindex=-1></a>        <span class=co># account for the plus or minus x</span></span>
+<span id=cb12-50><a href=#cb12-50 aria-hidden=true tabindex=-1></a>        possible_m <span class=op>=</span> [(x <span class=op>+</span> s) <span class=op>//</span> <span class=dv>2</span> <span class=op>%</span> n, (s <span class=op>-</span> x) <span class=op>//</span> <span class=dv>2</span> <span class=op>%</span> n]</span>
+<span id=cb12-51><a href=#cb12-51 aria-hidden=true tabindex=-1></a>        <span class=cf>for</span> m <span class=kw>in</span> possible_m:</span>
+<span id=cb12-52><a href=#cb12-52 aria-hidden=true tabindex=-1></a>            <span class=cf>assert</span> (s <span class=op>-</span> m) <span class=op>*</span> m <span class=op>%</span> n <span class=op>==</span> c1</span>
+<span id=cb12-53><a href=#cb12-53 aria-hidden=true tabindex=-1></a>            m <span class=op>=</span> int_to_bytes(m)</span>
+<span id=cb12-54><a href=#cb12-54 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-55><a href=#cb12-55 aria-hidden=true tabindex=-1></a>            <span class=cf>if</span> <span class=st>b&#39;flag&#39;</span> <span class=kw>in</span> m:</span>
+<span id=cb12-56><a href=#cb12-56 aria-hidden=true tabindex=-1></a>                <span class=bu>print</span>(<span class=st>&#39;flag: &#39;</span>, m)</span>
+<span id=cb12-57><a href=#cb12-57 aria-hidden=true tabindex=-1></a>                <span class=bu>print</span>(<span class=st>&#39;key: &#39;</span>, key <span class=op>:=</span> xor(m, int_to_bytes(c2)))</span>
+<span id=cb12-58><a href=#cb12-58 aria-hidden=true tabindex=-1></a>                <span class=cf>assert</span> <span class=bu>int</span>.from_bytes(m) <span class=op>*</span> <span class=bu>int</span>.from_bytes(key) <span class=op>%</span> n <span class=op>==</span> c1</span>
+<span id=cb12-59><a href=#cb12-59 aria-hidden=true tabindex=-1></a>                <span class=cf>break</span></span></code></pre></div></article></body></html>
