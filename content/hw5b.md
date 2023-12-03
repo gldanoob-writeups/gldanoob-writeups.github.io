@@ -7,9 +7,7 @@ math: true
 
 ### vow vs gldanoob
 
-I don’t like JS. -vow
-
-skill issue -gldanoob
+> I don’t like JS. -vow
 
 # Part 0: Networking
 

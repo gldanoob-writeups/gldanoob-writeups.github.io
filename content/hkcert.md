@@ -18,7 +18,7 @@ Meanwhile the scoreboard:
 
 
 ## Hackforces (gldanoob, degendemolisher)
-http://chal./hkcert23.pwnable.hk:28134/
+http://chal.hkcert23.pwnable.hk:28134/
 
 No, we're not going to solve a Codeforces problem, but instead we're given a submission attempt for a certain problem, and the goal is to craft a valid input to break the submission program, i.e. to make it either run into an error or yield incorrect results. 
 
@@ -142,8 +142,8 @@ Since we are able to construct $c_C = 2c_A$ and $c_C = c_A + c_B$ from `A` and `
 I thought this would be a fun challenge as I might learn about MIPS but at the end it gave me eye strain :sob:
 
 Attachment:
-https://file./hkcert23.pwnable.hk/mips-rop_e2610ec1ddc37812e250b7ac17cadfe6.zip
-`nc chal./hkcert23.pwnable.hk 28151`
+https://file.hkcert23.pwnable.hk/mips-rop_e2610ec1ddc37812e250b7ac17cadfe6.zip
+`nc chal.hkcert23.pwnable.hk 28151`
 
 `./rop` is MIPS binary containing a buffer overflow vulnerability, and as the title suggests we had to write an exploit using return-oriented programming to get us a shell and `cat flag`.
 
@@ -203,7 +203,7 @@ After the program exits `main()`, it loads the address of our gadget into `ra` t
 from pwn import *
 
 context.update(arch='mips', endian='big', os='linux', bits=32)
-r = remote('chal./hkcert23.pwnable.hk', 28151)
+r = remote('chal.hkcert23.pwnable.hk', 28151)
 sh = asm('''
   lui $t7, 0x2f62
   ori $t7, $t7,0x696e
@@ -233,19 +233,18 @@ r.interactive()
 ## Secret Notebook (gldanoob, degendemolisher, vow)
 Just an average web app with password authentication and content hosting. What could go wrong?
 
-http://chal-a./hkcert23.pwnable.hk:28107/index
+http://chal-a.hkcert23.pwnable.hk:28107/index
 
-Attachment: https://file./hkcert23.pwnable.hk/secret-notebook_7b1907aba402ecdb7ac74b14972cf0a0.zip
+Attachment: https://file.hkcert23.pwnable.hk/secret-notebook_7b1907aba402ecdb7ac74b14972cf0a0.zip
 
 In the site, users can sign up and create public notes freely. They can even retrieve a list of notes other users have written. The only restriction though, is that the `Administrator` account has a *secret note* stored in the same database, and is intended to be non-readable by normal users other than the administrator. And, of course, our goal is to retrieve it.
 
 In short, the `users` table is structured like this:
 
-```csvpreview {header="true"}
-username,password,publicnote,secretnote
-Administrator,???????,Welcome! I am admin and ...,/hkcert23{REDACTED}
-amogos,???????,oi tudo bem?,NULL
-```
+|username     |password     |publicnote                 |secretnote         |
+|-------------|-------------|---------------------------|-------------------|
+|Administrator|???????      |Welcome! I am admin and ...|hkcert23{REDACTED} |
+|amogos       |???????      |oi tudo bem?               |NULL               |
 
 And whenever a user clicks *Retrieve Public Notes*, the `username` and `publicnote` fields get selected and here's what gets returned to the user:
 
@@ -367,7 +366,7 @@ cookies = {
 headers = {
     'Accept': '*/*',
     'Accept-Language': 'en-US,en;q=0.5',
-    'Referer': 'http://chal-a./hkcert23.pwnable.hk:28107/home',
+    'Referer': 'http://chal-a.hkcert23.pwnable.hk:28107/home',
     'Connection': 'keep-alive',
 }
 
@@ -387,7 +386,7 @@ while len(pw) < 16:
             'column': payload,
             'ascending': 'ASC',
         }
-        response = requests.get('http://chal-a./hkcert23.pwnable.hk:28107/note',
+        response = requests.get('http://chal-a.hkcert23.pwnable.hk:28107/note',
                                 params=params, cookies=cookies, headers=headers)
 
         if response.status_code == 200:
@@ -403,7 +402,7 @@ print('Got password:', pw)
 
 Not really a hard crypto challenge but I figured the math behind the solution would be worth explaining.
 
-Attachment: https://file./hkcert23.pwnable.hk/solitude_92b66a8882479819f0170a1efa4c8baf.zip
+Attachment: https://file.hkcert23.pwnable.hk/solitude_92b66a8882479819f0170a1efa4c8baf.zip
 
  We're given the source code of a script that evaluates an integer polynomial function $f(x) \equiv s + \sum_{i=1}^{10} a_i x^i \mod p$ on a user input $x \in \mathbb{Z}$, given a random ~~prime~~ odd number $p$. The coefficients $0 \leq s, \,a_i < p$ are not shown to the user, and our goal is to infer the secret $s$, provided only the value of $f(x)$. 
 
@@ -430,6 +429,7 @@ f(\frac{p}{3}) \equiv s + \frac{a_1p}{3} + p\,a_3 \cdot \frac{p}{9} + ... + \: p
 $$
 
 We're close. How do we make $a_1p/3$ a multiple of $p$? Only when $a_1$ is a multiple of $3$.
+
 ### Solution
 1. Keep restarting the program until $9 \mid p$
 2. Put $x = p/3$, read the output $f(x)$ then enter the secret exactly as the output
@@ -440,7 +440,7 @@ We're close. How do we make $a_1p/3$ a multiple of $p$? Only when $a_1$ is a mul
 from pwn import *
 
 while True:
-    r = connect('chal./hkcert23.pwnable.hk', 28103)
+    r = connect('chal.hkcert23.pwnable.hk', 28103)
     p = int(r.recvline()[4:])
     if p % 9 != 0:
         continue
@@ -450,7 +450,7 @@ while True:
     r.sendline(str(y))
 
     out = r.recvline()
-    if b'/hkcert' in out:
+    if b'hkcert' in out:
         print(out)
         break
 ```
@@ -511,6 +511,7 @@ Now, you can remove the unnecessary HTML code and submit the flag!
 > "where flag?"
 > 
 > \- vow, 2023
+
 ### Finding the right packet
 
 We received a .pcap file, and as suggested by the hint, we should open it using Wireshark:
@@ -602,7 +603,7 @@ If you notice **the first two letters "PK"**, this is hinting that this is an **
 
 And there is our flag:
 
-||**/hkcert23{v3ry_5n34ky_w17h_dn53xf1l7r470r_5345623}**||
+[hkcert23{v3ry_5n34ky_w17h_dn53xf1l7r470r_5345623}]{.spoiler}
 
 
 ## 52Hz (attempted by degendemolisher)
@@ -669,7 +670,7 @@ I used my android phone and online qrcode readers -- all of which failed to read
 Until @vow pointed his **iPhone** towards my discord stream, and scanned it with ease.
 ~~Turns out iPhone actually has a reason to exist other than peer pressure -- scanning QRcodes.~~
 
-Flag: ||/hkcert23{n0_0n3_pl4ys_r4d10_n0w4d4ys}||
+Flag: [hkcert23{n0_0n3_pl4ys_r4d10_n0w4d4ys}]{.spoiler}
 
 Yes I'm still trying with my android. And no its camera is intact.
 
