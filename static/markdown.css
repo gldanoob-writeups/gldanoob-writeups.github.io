@@ -74,17 +74,15 @@ h4,
 h5,
 h6 {
     font-weight: 800;
-    margin-top: 24px;
-    margin-bottom: 16px;
     line-height: 1.25;
     margin-block-start: 1.75em;
+    margin-block-end: 1rem;
     border-bottom: none;
     padding-bottom: 0;
 }
 
 h1 {
     font-size: 2em;
-    margin-top: 0;
     padding-bottom: 0.3em;
     border-bottom-width: 1px;
 }
@@ -97,7 +95,6 @@ h2 {
 
 
 h3 {
-    margin-block-start: 1.25em;
     font-size: 1.25em;
 }
 
@@ -113,7 +110,7 @@ h6 {
     font-size: 0.85em;
 }
 
-p {
+p, blockquote, ul, ol, dl, table, pre, img, video {
     margin-block-start: 1.25em;
     margin-block-end: 1.25em;
     box-shadow: none !important;
@@ -256,8 +253,6 @@ figure {
 
 img,
 video {
-    margin-block-start: 1.25em;
-    margin-block-end: 1.25em;
     display: block;
     margin-left: 1em;
     margin-right: 1em;
