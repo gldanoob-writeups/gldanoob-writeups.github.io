@@ -270,6 +270,25 @@ figcaption {
 }
 
 
+.spoiler {
+    transition: color 0.5s, background 0.5s;
+    background-color: transparent;
+    color: var(--color);
+    padding: 0.4em 0.5em;
+    border-radius: 2px;
+    margin: 0.5em 0;
+    cursor: pointer;
+}
+
+.spoiler:not(:hover) {
+    color: transparent;
+    background-color: black;
+}
+
+.spoiler:not(:hover)>* {
+    opacity: 0
+}
+
 
 @media screen and (max-width: 768px) {
 
