@@ -241,10 +241,12 @@ In the site, users can sign up and create public notes freely. They can even ret
 
 In short, the `users` table is structured like this:
 
+<div class="scroll">
 |username     |password     |publicnote                 |secretnote         |
 |-------------|-------------|---------------------------|-------------------|
 |Administrator|???????      |Welcome! I am admin and ...|hkcert23{REDACTED} |
 |amogos       |???????      |oi tudo bem?               |NULL               |
+</div>
 
 And whenever a user clicks *Retrieve Public Notes*, the `username` and `publicnote` fields get selected and here's what gets returned to the user:
 

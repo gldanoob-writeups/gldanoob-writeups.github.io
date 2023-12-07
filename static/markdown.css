@@ -109,7 +109,15 @@ h6 {
     font-size: 0.85em;
 }
 
-p, blockquote, ul, ol, dl, table, pre, img, video {
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre,
+img,
+video {
     margin-block-start: 1.25em;
     margin-block-end: 1.25em;
     box-shadow: none !important;
@@ -162,6 +170,10 @@ hr {
     border-bottom: 1px solid;
 }
 
+.scroll {
+    overflow: scroll;
+    max-width: var(--max-width);
+}
 
 table {
     border-collapse: collapse;
@@ -242,8 +254,6 @@ blockquote {
     /* background: none !important; */
     background: var(--blockquote-background) !important;
 }
-
-blockquote p {}
 
 figure {
     margin: 0;
