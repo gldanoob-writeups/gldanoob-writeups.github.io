@@ -40,7 +40,7 @@ Is there a good way to return to the `ctf_simulator` function, without calling `
 
 ## Chaining the overwrites
 
-A trick I learned from [the MIPS ROP challenge]() is to make use of the existing values on the stack which are deterministic. In this case it means we can utilize those pointer values to control another value on the stack. For example, the value at `rbp` (`0x7fffffffd650`) refers to the saved `rbp` (`rbp + 0x120`), which points to the base of the previous stack frame. What if we used the format string exploit with the pointer at `rbp`? The value at base of the previous stack frame (which also is a pointer to the stack) get overwritten.
+A trick I learned from [the MIPS ROP challenge](/hkcert#mips-rop-gldanoob) is to make use of the existing values on the stack which are deterministic. In this case it means we can utilize those pointer values to control another value on the stack. For example, the value at `rbp` (`0x7fffffffd650`) refers to the saved `rbp` (`rbp + 0x120`), which points to the base of the previous stack frame. What if we used the format string exploit with the pointer at `rbp`? The value at base of the previous stack frame (which also is a pointer to the stack) get overwritten.
 
 ```
 [rbp] (8th arg)  -> rbp + 0x120
@@ -83,7 +83,7 @@ and leak the address of `puts()` in memory with `%10$s`, thus obtaining the addr
 
 However there is a problem: the binary is compiled with full RELRO, meaning the GOT table is read-only. We can't simply overwrite any GOT entry with the address of `system()`. But if we're lucky and the LIBC version on the server is older, there's a chance the LIBC calls a function pointer `__free_hook` (which can be user defined) when freeing chunks on the heap.
 
-We can check the LIBC version using https://libc.blukat.me/ with our leaked address:
+We can check the LIBC version using <https://libc.blukat.me/> with our leaked address:
 
 ![Alt text](/hw10a/image-8.png)
 
