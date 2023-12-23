@@ -278,7 +278,7 @@ figcaption {
     transition: color 0.5s, background 0.5s;
     background-color: transparent;
     color: var(--color);
-    padding: 0.4em 0.5em;
+    padding: 0.2em 0.5em;
     border-radius: 2px;
     margin: 0.5em 0;
     cursor: pointer;
@@ -293,6 +293,12 @@ figcaption {
     opacity: 0
 }
 
+img[alt="emoji"] {
+    height: 2em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.5em;
+    display: inline-block;
+}
 
 @media screen and (max-width: 768px) {
 
