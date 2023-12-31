@@ -1,10 +1,9 @@
 ---
-title: "HKCERT 2023"
+title: "HKCERT CTF 2023 Writeups"
 markup: "pandoc"
 math: true
+date: 2023-11-20T00:00:00-00:00
 ---
-
-# HKCERT CTF 2023 Writeups
 
 "looks like we're keeping the 3rd place"
 
@@ -18,7 +17,7 @@ Meanwhile the scoreboard:
 
 
 ## Hackforces (gldanoob, degendemolisher)
-http://chal.hkcert23.pwnable.hk:28134/
+<http://chal.hkcert23.pwnable.hk:28134/>
 
 No, we're not going to solve a Codeforces problem, but instead we're given a submission attempt for a certain problem, and the goal is to craft a valid input to break the submission program, i.e. to make it either run into an error or yield incorrect results. 
 
@@ -142,7 +141,7 @@ Since we are able to construct $c_C = 2c_A$ and $c_C = c_A + c_B$ from `A` and `
 I thought this would be a fun challenge as I might learn about MIPS but at the end it gave me eye strain :sob:
 
 Attachment:
-https://file.hkcert23.pwnable.hk/mips-rop_e2610ec1ddc37812e250b7ac17cadfe6.zip
+<https://file.hkcert23.pwnable.hk/mips-rop_e2610ec1ddc37812e250b7ac17cadfe6.zip> \
 `nc chal.hkcert23.pwnable.hk 28151`
 
 `./rop` is MIPS binary containing a buffer overflow vulnerability, and as the title suggests we had to write an exploit using return-oriented programming to get us a shell and `cat flag`.
@@ -167,7 +166,7 @@ Great. No NX or PIE, which means we can directly inject shellcode into the buffe
 ### It's more than just `pop rdi`
 
 Knowing absolutely nothing other than x86-64 pwning, I immediately started googling and eventually came across this post:
-https://ctftime.org/writeup/22613
+<https://ctftime.org/writeup/22613>
 
 Instead of chaining the return addresses of the ROP gadgets, like what we do when exploiting an x86 binary, we have to either overwrite `ra` or `t9` with our return address (depending on whether the gadget ends with `jr $ra` or `jalr $t9`), which makes thing harder as there are more registers we have to control. 
 
@@ -233,9 +232,9 @@ r.interactive()
 ## Secret Notebook (gldanoob, degendemolisher, vow)
 Just an average web app with password authentication and content hosting. What could go wrong?
 
-http://chal-a.hkcert23.pwnable.hk:28107/index
+<http://chal-a.hkcert23.pwnable.hk:28107/index>
 
-Attachment: https://file.hkcert23.pwnable.hk/secret-notebook_7b1907aba402ecdb7ac74b14972cf0a0.zip
+Attachment: <https://file.hkcert23.pwnable.hk/secret-notebook_7b1907aba402ecdb7ac74b14972cf0a0.zip>
 
 In the site, users can sign up and create public notes freely. They can even retrieve a list of notes other users have written. The only restriction though, is that the `Administrator` account has a *secret note* stored in the same database, and is intended to be non-readable by normal users other than the administrator. And, of course, our goal is to retrieve it.
 
@@ -404,7 +403,7 @@ print('Got password:', pw)
 
 Not really a hard crypto challenge but I figured the math behind the solution would be worth explaining.
 
-Attachment: https://file.hkcert23.pwnable.hk/solitude_92b66a8882479819f0170a1efa4c8baf.zip
+Attachment: <https://file.hkcert23.pwnable.hk/solitude_92b66a8882479819f0170a1efa4c8baf.zip>
 
  We're given the source code of a script that evaluates an integer polynomial function $f(x) \equiv s + \sum_{i=1}^{10} a_i x^i \mod p$ on a user input $x \in \mathbb{Z}$, given a random ~~prime~~ odd number $p$. The coefficients $0 \leq s, \,a_i < p$ are not shown to the user, and our goal is to infer the secret $s$, provided only the value of $f(x)$. 
 
@@ -472,7 +471,7 @@ If we try to open the VBA file, we can see that it is locked with a password:
 ### VBA Password == Non-existent
 As given in the hints, we can crack the password of the VBA. There are many ways to do so, but I used this website to crack/modify the password (follow the steps to modify the password):
 
-https://master.ayra.ch/unlock/
+<https://master.ayra.ch/unlock/>
 
 Once you modified the password, you can now open the VBA and read what is inside:
 
@@ -507,7 +506,7 @@ It turns out the VBA is using a WebBrowser as display, so we can get the HTML co
 
 Now, you can remove the unnecessary HTML code and submit the flag!
 
-||**/hkcert23{FIl1liIIlI1III1lll1IlI11ag_Hmrnmmrnmmmrnmn}**||
+||**hkcert23{FIl1liIIlI1III1lll1IlI11ag_Hmrnmmrnmmmrnmn}**||
 
 ## Yes, I Know I Know (vow, degendemolisher)
 > "where flag?"
@@ -538,7 +537,7 @@ Looking at these, we can see that there is a file named **secrets.txt.txt** (mos
 
 **Googling "Invoke-DNSExfiltrator"** brings us to a GitHub repository, and you will learn that a technique called **"DNS Exfiltration"** is being used. (which explains why hint 5 tells you to extract information from DNS packets)
 
-Repository: https://github.com/Arno0x/DNSExfiltrator
+Repository: <https://github.com/Arno0x/DNSExfiltrator>
 
 **So what is DNS Exfiltration?** It is basically a method that allows hackers to sneak data or commands into DNS packets.
 
@@ -570,7 +569,7 @@ There are 3 packets in question:
 
 By Googling harder (or maybe reading the source code), you might stumble across a site which explains how the DNSExfiltrator packets work:
 
-Site (In Chinese): https://www.freebuf.com/sectool/223929.html
+Site (In Chinese): <https://www.freebuf.com/sectool/223929.html>
 
 If you don't know Chinese, no worries, here is a quick rundown on how the **.init packets** work:
 
@@ -578,7 +577,7 @@ If you don't know Chinese, no worries, here is a quick rundown on how the **.ini
 
 The **.init packet** will be encoded in **Base32**, and specifies the information in the image above.
 
-We can use CyberChef to decode the packets: https://gchq.github.io/CyberChef/
+We can use CyberChef to decode the packets: <https://gchq.github.io/CyberChef/>
 
 Decoding the header data using CyberChef gives us:
 
@@ -593,7 +592,7 @@ Now as for the other 2 DNS packets, the data is arranged like this:
 Since there is no specified encoding method after decoding the .init packet, it is safe to assume that it is encoded using **Base64URL**.
 
 **IMPORTANT NOTE: THE DATA IS ENCODED WITH BASE64URL, NOT BASE64.**
-**REFERENCE: https://github.com/Arno0x/DNSExfiltrator/blob/8faa972408b0384416fffd5b4d42a7aa00526ca8/dnsexfiltrator.py#L56**
+**REFERENCE: <https://github.com/Arno0x/DNSExfiltrator/blob/8faa972408b0384416fffd5b4d42a7aa00526ca8/dnsexfiltrator.py#L56>**
 
 Now we can decode the actual data by removing the heading number and trailing DNS address first, then decode it with Base64URL (Change it in Alphabet) and decrypt it with RC4 using the password:
 
@@ -612,7 +611,7 @@ And there is our flag:
 
 Get the flag from the I/Q signal recording.
 Frequency Modulation; 440 MHz.
-[Attachment](https://file./hkcert23.pwnable.hk/52hz_dc866d3052ea3db76f9a5f4089aff8c3.zip)
+[Attachment](https://file.hkcert23.pwnable.hk/52hz_dc866d3052ea3db76f9a5f4089aff8c3.zip)
 
 *Ah yes, forensics. Sound? Looks doable.*
 *\*reads description\**
@@ -679,9 +678,9 @@ Yes I'm still trying with my android. And no its camera is intact.
 
 ## Sign me a flag (II) (attempted by gldanoob)
 
-Attachment: https://file./hkcert23.pwnable.hk/sign-me-a-flag-ii_ee9268d1310ede6d37cd4b5eda18457f.zip
+Attachment: <https://file.hkcert23.pwnable.hk/sign-me-a-flag-ii_ee9268d1310ede6d37cd4b5eda18457f.zip>
 
-This is an advanced version of the challenge *Sign me a flag (I)*, of which @mystiz *kindly* provided a partial solution guide. You can read it here and be amazed of his sophisticated understanding of cryptography: https://hackmd.io/@blackb6a//hkcert-ctf-2023-i-en-a58d115f39feab46#%E6%B1%82%E6%97%97%E7%B0%BD%E5%90%8D-I--Sign-me-a-Flag-I-Crypto
+This is an advanced version of the challenge *Sign me a flag (I)*, of which @mystiz *kindly* provided a partial solution guide. You can read it here and be amazed of his sophisticated understanding of cryptography: <https://hackmd.io/@blackb6a/hkcert-ctf-2023-i-en-a58d115f39feab46#%E6%B1%82%E6%97%97%E7%B0%BD%E5%90%8D-I--Sign-me-a-Flag-I-Crypto>
 
 Anyways, the program allows you to sign a message with a hidden random server key combined with the user-provided client key: 
 $$ \text{Sign}_i(k_c, m) = \text{HMAC-SHA256}(k_c \oplus k_s, i \mathbin\Vert m) $$
@@ -815,7 +814,7 @@ def get_flag(r, id, key_server: bytes):
 hashes: list[list[None | bytes]] = [[None] * 256 for _ in range(16)]
 what_i_sent: list[tuple[int, int] | None] = [None] * 40960
 
-r = remote('chal./hkcert23.pwnable.hk', 28009)
+r = remote('chal.hkcert23.pwnable.hk', 28009)
 
 
 def sign_byte(index, b, id):

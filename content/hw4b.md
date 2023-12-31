@@ -1,9 +1,8 @@
 ---
-title: "HW4B"
+title: "Homework 4b Writeup"
 math: true
+date: 2023-10-17T00:00:00+08:00
 ---
-
-# Homework 4B Writeup
 
 Best challenge I’ve seen in the course so far. (I might be a little biased)
 

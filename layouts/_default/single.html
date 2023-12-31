@@ -1,5 +1,12 @@
 {{ define "main" }}
 <article class="container">
+  <div class="title">
+    {{ .Title }}
+  </div>
+  <div class="date">
+    {{ .Date | time.Format ":date_medium" }}
+  </div>
+
   {{ .Content }}
 
   {{ partial "footer.html" . }}

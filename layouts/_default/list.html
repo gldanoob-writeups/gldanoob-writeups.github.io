@@ -3,7 +3,7 @@
   <h1>{{ .Title }}</h1>
 
   <ul>
-    {{ range (where .Pages ".Params.unlisted" "!=" "true") }}
+    {{ range (where .Pages.ByDate.Reverse ".Params.unlisted" "!=" "true") }}
 
     <li>
       <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>

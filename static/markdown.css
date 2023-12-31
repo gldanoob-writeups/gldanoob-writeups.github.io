@@ -55,6 +55,7 @@ html {
     min-height: 0;
     flex: 1;
     flex-grow: 1;
+    position: relative;
 }
 
 .menu {
@@ -63,6 +64,12 @@ html {
     width: var(--max-width);
     margin-bottom: 1em;
     flex-grow: 1;
+}
+
+.date {
+    font-size: 0.9em;
+    color: var(--footer-color);
+    margin-bottom: 2em;
 }
 
 footer {
@@ -74,6 +81,7 @@ footer {
 }
 
 /* Reset margin top for elements */
+.title,
 h1,
 h2,
 h3,
@@ -87,6 +95,7 @@ pre {
     margin-top: 0;
 }
 
+.title,
 h1,
 h2,
 h3,
@@ -101,9 +110,13 @@ h6 {
     padding-bottom: 0;
 }
 
-h1 {
+.title, h1 {
     font-size: 2em;
     border-bottom-width: 1px;
+}
+
+.title {
+    margin-block-end: 0.2em;
 }
 
 h2 {

@@ -1,10 +1,9 @@
 ---
-title: "HW5B"
+title: "Homework 5b Writeup"
 math: true
 unlisted: true
+date: 2023-11-10T00:00:00+08:00
 ---
-
-# Homework 5B Writeup
 
 ### vow vs gldanoob
 
