@@ -1,3 +1,8 @@
+---
+title: "HW10A"
+math: true
+---
+
 # Homework 10a Writeup (without `giveup()`)
 ![bruh](/hw10a/image-1.png)
 

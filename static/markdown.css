@@ -8,6 +8,7 @@
     --background: rgb(29, 31, 38) !important;
     --blockquote-background: rgb(26, 28, 33) !important;
     --color: #fff !important;
+    --footer-color: #aaa !important;
     --code-background: rgb(54, 53, 71) !important;
     --code-color: #dddddd !important;
     --border-color: hsla(0, 0%, 100%, 0.1) !important;
@@ -31,6 +32,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100vh;
+    justify-content: stretch;
 }
 
 * {
@@ -51,6 +54,23 @@ html {
     min-width: 0;
     min-height: 0;
     flex: 1;
+    flex-grow: 1;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    width: var(--max-width);
+    margin-bottom: 1em;
+    flex-grow: 1;
+}
+
+footer {
+    margin-bottom: 1em;
+    padding-top: 2em;
+    font-size: 0.8em;
+    color: var(--footer-color);
+    margin-top: auto;
 }
 
 /* Reset margin top for elements */
@@ -161,7 +181,11 @@ li p {
 
 ul,
 ol {
-    margin-bottom: 0.7em;
+    padding-left: 0;
+}
+
+ul {
+    list-style: none;
 }
 
 hr {
