@@ -1,6 +1,7 @@
 ---
 title: "HW5B"
 math: true
+unlisted: true
 ---
 
 # Homework 5B Writeup
