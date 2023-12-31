@@ -1,9 +1,9 @@
 ---
-title: "HW10A"
+title: "Homework 10a Writeup (without giveup())"
 math: true
+date: 2023-12-18T00:00:00-00:00
 ---
 
-# Homework 10a Writeup (without `giveup()`)
 ![bruh](/hw10a/image-1.png)
 
 ## A Quick Look 
