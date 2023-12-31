@@ -110,7 +110,8 @@ h6 {
     padding-bottom: 0;
 }
 
-.title, h1 {
+.title,
+h1 {
     font-size: 2em;
     border-bottom-width: 1px;
 }
@@ -313,22 +314,31 @@ figcaption {
 
 .spoiler {
     transition: color 0.5s, background 0.5s;
-    background-color: transparent;
-    color: var(--color);
     padding: 0.2em 0.5em;
     border-radius: 2px;
     margin: 0.5em 0;
     cursor: pointer;
-}
-
-.spoiler:not(:hover) {
     color: transparent;
     background-color: black;
+    user-select: none;
 }
 
-.spoiler:not(:hover)>* {
-    opacity: 0
+.spoiler>* {
+    opacity: 0;
 }
+
+.spoiler:hover,
+.spoiler:active {
+    background-color: transparent;
+    color: var(--color);
+    user-select: auto;
+}
+
+.spoiler:hover>*,
+.spoiler:active>* {
+    opacity: 1
+}
+
 
 img[alt="emoji"] {
     height: 2em;
