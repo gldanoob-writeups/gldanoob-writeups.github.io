@@ -4,7 +4,7 @@ math: true
 date: 2024-01-08T00:00:00-00:00
 ---
 
-CTF challenges can be itimidating to beginners, especially to those without much technical background. This is a step-by-step guide to the [IrisCTF 2024](https://ctftime.org/event/1522) challenge "What the Beep", aiming to show both the thought process and the details of how I solved it, and how you can too even without much prior knowledge.
+CTF challenges can be intimidating for beginners, especially those without much technical background. This is a step-by-step guide to the [IrisCTF 2024](https://ctftime.org/event/1522) challenge "What the Beep", aiming to show both the thought process and the details of how I solved it, and how you can too, even without a lot of prior knowledge.
 
 ## Skills Required
 - Googling
@@ -19,7 +19,7 @@ A strange beep sound was heard across a part of the San Joaquin Valley. We have 
 
 Let's download the attached file and see what it has...
 
-"Wait, the file has an weird extension `.tar.gz`. How do I even open this file?"
+"Wait, the file has a weird extension `.tar.gz`. How do I even open this file?"
 
 > ***Tip***  \
   Whenever you encounter something you've never seen before, just [look it up](https://www.cyberciti.biz/faq/how-to-create-tar-gz-file-in-linux-using-command-line/).
@@ -116,7 +116,7 @@ data_a = [49.4862687673082, 49.11758306247154, 49.35891737763439, 49.60312825002
 
 ```
 
-I only extracted the numbers close to 50, since that's the relavent part of the graph. Now we can work out the distance $r_A$ in feet:
+I only extracted the numbers close to 50, since that's the relevant part of the graph. Now we can work out the distance $r_A$ in feet:
 
 ```python
 import math
@@ -141,7 +141,7 @@ There we are (I have no idea why this exists). Let's try to use it, pasting in t
 
 ![Alt text](map.png)
 
-Ooh, there's an intersection! But looks like one of the circles is not in the right place. What went wrong?
+Ooh, there's an intersection! But one of the circles looks off. What went wrong?
 Let's click on the circle around $A$:
 
 ![Alt text](a.png)
@@ -157,7 +157,7 @@ which contains the wrong coordinates of the circle. Now let's do a little hack, 
 ```
 ...%2C37.185287%2C-120.292548%2C...
 ```
-And finally pasting it into the address bar:
+and finally pasting it into the address bar:
 ![Alt text](correct.png)
 
 Voila! The circles now (*nearly*) intersect at a single point. Pick a point best approximating the location of the sound source, and we're done! 
@@ -169,7 +169,7 @@ Where do we submit our answer? Let's look at the challenge description again:
 
 "What's the *answer checker service*? And what about `nc what-the-beep.chal.irisc.tf 10500`?"
 
-I'll give you a hint: `nc` is short for [**netcat**](https://nooblinux.com/how-to-use-netcat/).
+I'll give you a hint: `nc` is short for [**Netcat**](https://nooblinux.com/how-to-use-netcat/).
 
 ![Alt text](nc.png)
 
