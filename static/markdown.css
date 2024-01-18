@@ -189,18 +189,26 @@ textarea:focus {
     outline-offset: -1px;
 }
 
+ul,
+ol {
+    padding-left: 0em;
+    margin-left: 1em;
+}
+
 li p {
     margin-bottom: 0.7em;
 }
 
-ul,
-ol {
-    padding-left: 0;
+ol>li,
+ul>li {
+    margin-left: .8em;
 }
 
-ul {
-    list-style: none;
+ul>li::marker {
+    content: '>  ';
 }
+
+/* Table of Contents */
 
 hr {
     border: 0;

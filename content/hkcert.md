@@ -127,6 +127,7 @@ This works due to the total of 2 ways to get to B *after* getting to A.
 
 ### Our solution
 Since we are able to construct $c_C = 2c_A$ and $c_C = c_A + c_B$ from `A` and `B`:
+
 1. Write $10^9+7$ in binary and figure out the powers of two we need to add up: $10^9+7 = 2^0 + 2^1 + 2^2 + 2^9+2^{11}+2^{14}+2^{15}+2^{17}+2^{19}+2^{20}+2^{23}+2^{24}+2^{25} +2^{27} +2^{28} +2^{29}$
 2. In the map, start with $c_A = 1$, and generate path counts with the required powers of two using the second trick above
 3. *Bring* the path counts together (with walls of obstacles) and add them up to a cell
