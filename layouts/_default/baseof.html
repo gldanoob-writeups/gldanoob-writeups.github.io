@@ -10,6 +10,12 @@
   {{ if .Params.math }}{{ partial "katex.html" . }}{{ end }}
 </head>
 
+<script>
+  addEventListener("load", () => {
+    console.log("nothing to see here yo");
+  }, false);
+</script>
+
 <body>
   {{ block "main" . }}
 
