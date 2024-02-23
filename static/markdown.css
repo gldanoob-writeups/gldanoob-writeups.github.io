@@ -256,7 +256,7 @@ span.katex-display {
     overflow-x: auto;
     overflow-y: hidden;
     text-align: initial;
-    padding: 1rem;
+    /* padding: 1rem; */
 }
 
 .katex {
