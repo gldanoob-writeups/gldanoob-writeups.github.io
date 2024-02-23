@@ -1,0 +1,366 @@
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --accent: #bb9af7 !important;
+    --background: rgb(29, 31, 38) !important;
+    --blockquote-background: rgb(26, 28, 33) !important;
+    --color: #fff !important;
+    --footer-color: #aaa !important;
+    --code-background: rgb(54, 53, 71) !important;
+    --code-color: #dddddd !important;
+    --border-color: hsla(0, 0%, 100%, 0.1) !important;
+    --max-width: min(100%, 60em) !important;
+}
+
+
+body {
+    font-family: 'Fira Code', Monaco, Consolas, Ubuntu Mono, monospace;
+    font-size: 1rem;
+    line-height: 1.64;
+    background-color: var(--background);
+    color: var(--color);
+    font-feature-settings: "liga", "tnum", "case", "calt", "zero", "ss01", "locl", "calt";
+    -webkit-font-smoothing: antialiased;
+    font-variant-ligatures: contextual;
+    -webkit-overflow-scrolling: touch;
+    -webkit-text-size-adjust: 100%;
+    margin: 0;
+    padding: 5em 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    justify-content: stretch;
+}
+
+* {
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    word-wrap: break-word;
+    font-size: 16px;
+}
+
+
+.container {
+    max-width: var(--max-width);
+    min-width: 0;
+    min-height: 0;
+    flex: 1;
+    flex-grow: 1;
+    position: relative;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    width: var(--max-width);
+    margin-bottom: 1em;
+    flex-grow: 1;
+}
+
+.date {
+    font-size: 0.9em;
+    color: var(--footer-color);
+    margin-bottom: 2em;
+}
+
+footer {
+    margin-bottom: 1em;
+    padding-top: 2em;
+    font-size: 0.8em;
+    color: var(--footer-color);
+    margin-top: auto;
+}
+
+/* Reset margin top for elements */
+.title,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul,
+pre {
+    margin-top: 0;
+}
+
+.title,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    margin-block-start: 1.75em;
+    margin-block-end: 1rem;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.title,
+h1 {
+    font-size: 2em;
+    border-bottom-width: 1px;
+}
+
+.title {
+    margin-block-end: 0.2em;
+}
+
+h2 {
+    font-size: 1.5em;
+    border-bottom-width: 1px;
+}
+
+
+h3 {
+    margin-block-start: 1.5em;
+    font-size: 1.25em;
+}
+
+h4 {
+    font-size: 1em;
+}
+
+h5 {
+    font-size: 0.875em;
+}
+
+h6 {
+    font-size: 0.85em;
+}
+
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre,
+img,
+video {
+    margin-block-start: 1.25em;
+    margin-block-end: 1.25em;
+    box-shadow: none !important;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    box-shadow: none !important;
+}
+
+a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    box-shadow: none !important;
+}
+
+sub,
+sup {
+    line-height: 0;
+}
+
+ul ul:first-child,
+ul ol:first-child,
+ol ul:first-child,
+ol ol:first-child {
+    margin-bottom: 0;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 1px solid -webkit-focus-ring-color;
+    outline-offset: -1px;
+}
+
+ul,
+ol {
+    padding-left: 0em;
+    margin-left: 1em;
+}
+
+li p {
+    margin-bottom: 0.7em;
+}
+
+ol>li,
+ul>li {
+    margin-left: .8em;
+}
+
+ul>li::marker {
+    content: '>  ';
+}
+
+/* Table of Contents */
+
+hr {
+    border: 0;
+    height: 1px;
+    border-bottom: 1px solid;
+}
+
+.scroll {
+    overflow: auto;
+    max-width: var(--max-width);
+}
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 0.7em;
+}
+
+th {
+    text-align: left;
+    border-bottom: 1px solid;
+}
+
+th,
+td {
+    padding: 5px 10px;
+}
+
+table>tbody>tr+tr>td {
+    border-top: 1px solid;
+}
+
+span.katex-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+}
+
+.katex-html>.newline {
+    height: 0.2em !important;
+}
+
+.katex-display>.katex {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: initial;
+    /* padding: 1rem; */
+}
+
+.katex {
+    white-space: normal;
+    text-indent: 0;
+}
+
+pre {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 0 !important;
+    background-color: inherit !important;
+    padding: 1em 1.2em !important;
+    margin: 1.25em 0 !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+code {
+    font-size: 1rem !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    color: var(--code-color) !important;
+}
+
+code:not(pre code) {
+    background-color: var(--code-background) !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    /* font-size: .95rem !important; */
+    padding: 2px 5px !important;
+}
+
+blockquote {
+    margin: 0;
+    border-radius: 2px;
+    padding: 0.05em 1.5em;
+    border-left: 0.2em solid var(--accent);
+    /* background: none !important; */
+    background: var(--blockquote-background) !important;
+}
+
+figure {
+    margin: 0;
+    padding: 0;
+}
+
+img,
+video {
+    display: block;
+    margin-left: 1em;
+    margin-right: 1em;
+    max-width: calc(var(--max-width) - 2em);
+    max-height: 60em;
+}
+
+figcaption {
+    display: none;
+}
+
+
+.spoiler {
+    transition: color 0.5s, background 0.5s;
+    padding: 0.2em 0.5em;
+    border-radius: 2px;
+    margin: 0.5em 0;
+    cursor: pointer;
+    color: transparent;
+    background-color: black;
+    user-select: none;
+}
+
+.spoiler>* {
+    opacity: 0;
+}
+
+.spoiler:hover,
+.spoiler:active {
+    background-color: transparent;
+    color: var(--color);
+    user-select: auto;
+}
+
+.spoiler:hover>*,
+.spoiler:active>* {
+    opacity: 1
+}
+
+
+img[alt="emoji"] {
+    height: 2em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.5em;
+    display: inline-block;
+}
+
+@media screen and (max-width: 768px) {
+
+    img,
+    video {
+        margin-left: 0em;
+        margin-right: 0em;
+        max-width: var(--max-width);
+    }
+}
