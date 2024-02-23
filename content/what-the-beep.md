@@ -19,7 +19,7 @@ A strange beep sound was heard across a part of the San Joaquin Valley. We have 
 
 Let's download the attached file and see what it has...
 
-"Wait, the file has a weird extension `.tar.gz`. How do I even open this file?"
+"Wait, the file has a weird extension `.tar.gz`. How do I even open it?"
 
 > ***Tip***  \
   Whenever you encounter something you've never seen before, just [look it up](https://www.cyberciti.biz/faq/how-to-create-tar-gz-file-in-linux-using-command-line/).
@@ -103,7 +103,7 @@ But here's a small problem: we get little bumps on the curve during the 2-second
 The best way I can think of is to take the **average** of the data points. 
 
 And rather than copying off the values one by one with the mouse, did you notice how the graphs are **interactive**?
-The actual data must be stored *somewhere* in the HTML file, and we can **inspect** the page to find out where: 
+The actual data must be stored *somewhere* in the HTML file, and we can **[inspect](https://firefox-source-docs.mozilla.org/devtools-user/index.html)** the page to find out where: 
 
 ![Alt text](source.png)
 
@@ -137,7 +137,7 @@ Same goes for $r_B$, $r_C$ and $r_D$. Try working them out yourself!
 Now that we have the coordinates and distances, all that's left is to draw the circles on a map... is there any convenient map application that allows us to draw circles?
 ![Alt text](google.png)
 
-There we are (I have no idea why this exists). Let's try to use it, pasting in the coordinates and distances...
+[There we are](https://www.mapdevelopers.com/draw-circle-tool.php) (I have no idea why this exists). Let's try to use it, pasting in the coordinates and distances...
 
 ![Alt text](map.png)
 
@@ -153,14 +153,17 @@ We see a **generated URL** for the created map, in a text box below:
 
 ![Alt text](image-1.png)
 
-which contains the wrong coordinates of the circle. Now let's do a little hack, replacing the numbers with the correct ones:
+which [contains the wrong coordinates](https://www.semrush.com/blog/url-parameters/) of the circle. 
+Now let's do a little hack, replacing the numbers with the correct ones:
+
 ```
 ...%2C37.185287%2C-120.292548%2C...
 ```
 and finally pasting it into the address bar:
 ![Alt text](correct.png)
 
-Voila! The circles now (*nearly*) intersect at a single point. Pick a point best approximating the location of the sound source, and we're done! 
+Voila! The circles now (*nearly*) intersect at a single point. 
+Pick a point best approximating the location of the sound source, and we're done! 
 
 ![Alt text](ans.png)
 
@@ -173,7 +176,8 @@ I'll give you a hint: `nc` is short for [**Netcat**](https://nooblinux.com/how-t
 
 ![Alt text](nc.png)
 
-... no trick questions here, don't worry. Just follow the instructions and the sacred line of text you've been craving for shall reveal itself:
+... no trick questions here, don't worry. 
+Just follow the instructions and the sacred line of text you've been craving for shall reveal itself:
 
 ![Alt text](flag.png)
 
