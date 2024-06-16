@@ -4,7 +4,7 @@ math: true
 date: 2024-01-08T00:00:00-00:00
 ---
 
-CTF challenges can be intimidating for beginners, especially those without much technical background. This is a step-by-step guide to the [IrisCTF 2024](https://ctftime.org/event/1522) challenge "What the Beep", aiming to show both the thought process and the details of how I solved it, and how you can too, even without a lot of prior knowledge.
+CTF challenges can be intimidating for beginners, especially those without much technical background. This is a step-by-step guide to the [IrisCTF 2024](https://ctftime.org/event/2085) challenge "What the Beep", aiming to show both the thought process and the details of how I solved it, and how you can too, even without a lot of prior knowledge.
 
 ## Skills Required
 - Googling

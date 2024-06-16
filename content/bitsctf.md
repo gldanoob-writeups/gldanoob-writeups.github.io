@@ -20,10 +20,10 @@ $$ M^{\phi(n)} \equiv 1 \mod n $$
 
 where $\phi(n)$ is the Euler's totient function.
 
-The key is to notice that **Euler's theorem** holds for any group $G$ with $|G|$ as the exponent, since it is a consequence of **Lagrange's theorem** (the order of any subgroup divides $\phi(n)$). In the everyday version of RSA, the group is $\Z^{*}_n$ with $|\Z^{*}_n| = \phi(n) = (p-1)(q-1)$.
+The key is to notice that **Euler's theorem** holds for any group $G$ with $|G|$ as the exponent, since it is a consequence of **Lagrange's theorem** (the order of any subgroup divides $|G|$). In the everyday version of RSA, the group is $\Z^{*}_n$ with $|\Z^{*}_n| = \phi(n) = (p-1)(q-1)$.
 But since we're working with a totally different group, $|G|$ could be another number.
 
-How do we figure out the order of the group $\mathrm{GL}_2(\Z/n\Z)$? Well, you can either figure it out by yourself or look it up. I found this wikipedia entry to be helpful: ![alt text](/bitsctf/image-1.png) and also this post: ![alt text](/bitsctf/se.png)
+How do we figure out the order of the group $\mathrm{GL}_2(\Z/n\Z)$? Well, you can either work it out yourself or look it up. I found this wikipedia entry to be helpful: ![alt text](/bitsctf/image-1.png) and also this post: ![alt text](/bitsctf/se.png)
 
 Therefore we know that 
 $$ |\mathrm{GL_2}(\Z/n\Z)| = |\mathrm{GL_2}(\Z/p\Z) \times \mathrm{GL_2}(\Z/q\Z)| = |\mathrm{GL_2}(\Z/p\Z)| \cdot |\mathrm{GL_2}(\Z/q\Z)| = (p^2 - 1)(p^2 - p)(q^2 - 1)(q^2 - q) $$
@@ -73,7 +73,7 @@ Let's look at a simpler version of the problem: $y_1 + y_2 + y_3 = 8$, with $0 \
 
 ![alt text](/bitsctf/t1.png){width=350}
 
-Simple right? The count $C_1(s)$ of each sum $s$ in the table increases for $s < 4$, stays the same for $4 \leq s \lt 6$, and decreases for $s \geq 6$. Now what happens when we add $y_3$? each column of the table is now "weighted" by $c_s$:
+Simple right? The count $C_1(s)$ of each sum $s$ in the table increases for $s < 4$, stays the same for $4 \leq s \lt 6$, and decreases for $s \geq 6$. Now what happens when we add $y_3$? each column of the table is now *weighted* by $c_s$:
 
 ![I really need a better drawing app](/bitsctf/t2.png){width=600}
 
@@ -84,7 +84,7 @@ $$ C_2(s) = \begin{cases}
 C_2(0) & \text{if } s = 0 \\
 C_2(s-1) + C_1(s) & \text{if } 0 \leq s < L_3 \\
 C_2(s-1) + C_1(s) - C_1(s-L_3) & \text{if } L_3 \leq s < L_2 \\
-C_2(s-1) - C_1(s-L_3) & \text{if } s > L_2 \\
+C_2(s-1) - C_1(s-L_3) & \text{if } s \geq L_2 \\
 \end{cases}
 $$
 
