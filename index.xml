@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CTF Writeups</title><link>https://writeup.gldanoob.dev/</link><description>Recent content on CTF Writeups</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Mon, 04 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://writeup.gldanoob.dev/index.xml" rel="self" type="application/rss+xml"/><item><title>PolyUCTF 2024 Writeups</title><link>https://writeup.gldanoob.dev/polyuctf/</link><pubDate>Mon, 04 Mar 2024 00:00:00 +0000</pubDate><guid>https://writeup.gldanoob.dev/polyuctf/</guid><description>&lt;h2 id="tung-ling-the-future">Tung Ling The Future&lt;/h2>
+&lt;p>Not actually tuning. Need some number theory tho&lt;/p>
+&lt;p>We’re basically given 10 iteration of the “pseudorandom” function
+&lt;span class="math inline">\(f(x) + ax + c \mod m\)&lt;/span> and we’re
+asked to predict the next 10 values.&lt;/p></description></item><item><title>BITSCTF 2024 Writeups</title><link>https://writeup.gldanoob.dev/bitsctf/</link><pubDate>Mon, 29 Jan 2024 00:00:00 +0000</pubDate><guid>https://writeup.gldanoob.dev/bitsctf/</guid><description>&lt;p>My team got the 5th place which is out of our expectation, although
+we are 10 points away from getting a prize. Here’s the writeups for some
+challenges I found interesting.&lt;/p>
+&lt;h2 id="baby-rsa">Baby RSA&lt;/h2>
+&lt;p>In short: just another implementation of the standard RSA algorithm.
+But instead of operating on the multiplicative group of integers modulo
+&lt;span class="math inline">\(n\)&lt;/span> (&lt;span
+class="math inline">\(\Z^{\times}_n\)&lt;/span>), it operates on the
+&lt;strong>general linear group&lt;/strong> of 2x2 matrices (&lt;span
+class="math inline">\(\mathrm{GL}_2(R)\)&lt;/span>), over the &lt;strong>ring
+of integers modulo &lt;span class="math inline">\(n\)&lt;/span>&lt;/strong>
+(&lt;span class="math inline">\(\Z/n\Z\)&lt;/span>), and matrix multiplication
+acts as the group operation. The flag is divided into 4 parts of equal
+length and are assembled into a 2x2 matrix:&lt;/p></description></item><item><title>IrisCTF 2024 Solution Guide - What the Beep (Forensics)</title><link>https://writeup.gldanoob.dev/what-the-beep/</link><pubDate>Mon, 08 Jan 2024 00:00:00 +0000</pubDate><guid>https://writeup.gldanoob.dev/what-the-beep/</guid><description>&lt;p>CTF challenges can be intimidating for beginners, especially those
+without much technical background. This is a step-by-step guide to the
+&lt;a href="https://ctftime.org/event/2085">IrisCTF 2024&lt;/a> challenge
+“What the Beep”, aiming to show both the thought process and the details
+of how I solved it, and how you can too, even without a lot of prior
+knowledge.&lt;/p>
+&lt;h2 id="skills-required">Skills Required&lt;/h2>
+&lt;ul>
+&lt;li>Googling&lt;/li>
+&lt;li>Use of web applications&lt;/li>
+&lt;li>Some algebra&lt;/li>
+&lt;li>Basic Python scripting&lt;/li>
+&lt;/ul>
+&lt;h2 id="first-look">First Look&lt;/h2>
+&lt;blockquote>
+&lt;p>&lt;strong>Challenge Description&lt;/strong>&lt;br />
+A strange beep sound was heard across a part of the San Joaquin Valley.
+We have the records from some audio volume meters at various locations
+nearby that picked up this event. It’s understood that the original
+sound was about 140 dB at the source, but can you find out where it
+originated from?&lt;/p></description></item><item><title>Homework 10a Writeup (without giveup())</title><link>https://writeup.gldanoob.dev/hw10a/</link><pubDate>Mon, 18 Dec 2023 00:00:00 +0000</pubDate><guid>https://writeup.gldanoob.dev/hw10a/</guid><description>&lt;figure>
+&lt;img src="https://writeup.gldanoob.dev/hw10a/image-1.png" alt="bruh" />
+&lt;figcaption aria-hidden="true">bruh&lt;/figcaption>
+&lt;/figure>
+&lt;h2 id="a-quick-look">A Quick Look&lt;/h2>
+&lt;figure>
+&lt;img src="https://writeup.gldanoob.dev/hw10a/image-2.png" alt="Alt text" />
+&lt;figcaption aria-hidden="true">Alt text&lt;/figcaption>
+&lt;/figure>
+&lt;p>Sums up every CTF challenge so far &lt;img
+src="https://blob.cat/emoji/custom/blobcats/blobcatgooglytrash.png"
+alt="emoji" />&lt;/p>
+&lt;p>As a rule of thumb we will run &lt;code>checksec&lt;/code> on the
+binary:&lt;/p>
+&lt;figure>
+&lt;img src="https://writeup.gldanoob.dev/hw10a/image-6.png" alt="Alt text" />
+&lt;figcaption aria-hidden="true">Alt text&lt;/figcaption>
+&lt;/figure>
+&lt;p>Looks scary &lt;img
+src="https://blob.cat/emoji/custom/blobcats/ablobcatsweatsiphard.gif"
+alt="emoji" />&lt;/p>
+&lt;p>The vulnerability could be easily found in the source code if you’re
+using the &lt;code>clangd&lt;/code> lauguage server in your editor:&lt;/p></description></item><item><title>HKCERT CTF 2023 Writeups</title><link>https://writeup.gldanoob.dev/hkcert/</link><pubDate>Mon, 20 Nov 2023 00:00:00 +0000</pubDate><guid>https://writeup.gldanoob.dev/hkcert/</guid><description>&lt;p>“looks like we’re keeping the 3rd place”&lt;/p>
+&lt;p>&lt;em>*goes to sleep*&lt;/em>&lt;/p>
+&lt;p>Meanwhile the scoreboard:&lt;/p>
+&lt;figure>
+&lt;img src="https://writeup.gldanoob.dev/hkcert/Bk365ZgN6.png" alt="image" />
+&lt;figcaption aria-hidden="true">image&lt;/figcaption>
+&lt;/figure>
+&lt;figure>
+&lt;img src="https://writeup.gldanoob.dev/hkcert/HkHGYQgE6.gif" alt="ez" />
+&lt;figcaption aria-hidden="true">ez&lt;/figcaption>
+&lt;/figure>
+&lt;h2 id="hackforces-gldanoob-degendemolisher">Hackforces (gldanoob,
+degendemolisher)&lt;/h2>
+&lt;p>&lt;a href="http://chal.hkcert23.pwnable.hk:28134/"
+class="uri">http://chal.hkcert23.pwnable.hk:28134/&lt;/a>&lt;/p>
+&lt;p>No, we’re not going to solve a Codeforces problem, but instead we’re
+given a submission attempt for a certain problem, and the goal is to
+craft a valid input to break the submission program, i.e. to make it
+either run into an error or yield incorrect results.&lt;/p></description></item><item><title>Homework 5b Writeup</title><link>https://writeup.gldanoob.dev/hw5b/</link><pubDate>Fri, 10 Nov 2023 00:00:00 +0800</pubDate><guid>https://writeup.gldanoob.dev/hw5b/</guid><description>&lt;h3 id="vow-vs-gldanoob">vow vs gldanoob&lt;/h3>
+&lt;blockquote>
+&lt;p>I don’t like JS. -vow&lt;/p>
+&lt;/blockquote>
+&lt;h1 id="part-0-networking">Part 0: Networking&lt;/h1>
+&lt;figure>
+&lt;img src="https://writeup.gldanoob.dev/hw5b/Untitled.png" alt="Untitled" />
+&lt;figcaption aria-hidden="true">Untitled&lt;/figcaption>
+&lt;/figure>
+&lt;p>So we arrived at the /flag page after attending the lessons (&lt;del>and
+copying the flags&lt;/del>).&lt;/p>
+&lt;p>We see there is a place for us to “Run Admin Script”, and some random
+links leading to a JS tutorial and some subpar memes.&lt;/p>
+&lt;p>How about we check the network?&lt;/p></description></item><item><title>Homework 4b Writeup</title><link>https://writeup.gldanoob.dev/hw4b/</link><pubDate>Tue, 17 Oct 2023 00:00:00 +0800</pubDate><guid>https://writeup.gldanoob.dev/hw4b/</guid><description>&lt;p>Best challenge I’ve seen in the course so far. (I might be a little
+biased)&lt;/p>
+&lt;p>Anyways, attached to the challenge is nothing but a few lines of
+Python:&lt;/p>
+&lt;div class="sourceCode" id="cb1">&lt;pre
+class="sourceCode python">&lt;code class="sourceCode python">&lt;span id="cb1-1">&lt;a href="#cb1-1" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="im">from&lt;/span> Crypto.Util.number &lt;span class="im">import&lt;/span> bytes_to_long, long_to_bytes, getPrime&lt;/span>
+&lt;span id="cb1-2">&lt;a href="#cb1-2" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="im">import&lt;/span> base64&lt;/span>
+&lt;span id="cb1-3">&lt;a href="#cb1-3" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="im">from&lt;/span> secret &lt;span class="im">import&lt;/span> flag, key&lt;/span>
+&lt;span id="cb1-4">&lt;a href="#cb1-4" aria-hidden="true" tabindex="-1">&lt;/a>&lt;/span>
+&lt;span id="cb1-5">&lt;a href="#cb1-5" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="kw">def&lt;/span> cipher(k, m, n):&lt;/span>
+&lt;span id="cb1-6">&lt;a href="#cb1-6" aria-hidden="true" tabindex="-1">&lt;/a> &lt;span class="cf">return&lt;/span> (k &lt;span class="op">*&lt;/span> m) &lt;span class="op">%&lt;/span> n&lt;/span>
+&lt;span id="cb1-7">&lt;a href="#cb1-7" aria-hidden="true" tabindex="-1">&lt;/a>&lt;/span>
+&lt;span id="cb1-8">&lt;a href="#cb1-8" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="kw">def&lt;/span> xor(k, m):&lt;/span>
+&lt;span id="cb1-9">&lt;a href="#cb1-9" aria-hidden="true" tabindex="-1">&lt;/a> &lt;span class="cf">return&lt;/span> &lt;span class="bu">bytes&lt;/span>(a &lt;span class="op">^&lt;/span> b &lt;span class="cf">for&lt;/span> a, b &lt;span class="kw">in&lt;/span> &lt;span class="bu">zip&lt;/span>(m, k))&lt;/span>
+&lt;span id="cb1-10">&lt;a href="#cb1-10" aria-hidden="true" tabindex="-1">&lt;/a>&lt;/span>
+&lt;span id="cb1-11">&lt;a href="#cb1-11" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="kw">def&lt;/span> main():&lt;/span>
+&lt;span id="cb1-12">&lt;a href="#cb1-12" aria-hidden="true" tabindex="-1">&lt;/a> k, m &lt;span class="op">=&lt;/span> bytes_to_long(key), bytes_to_long(flag)&lt;/span>
+&lt;span id="cb1-13">&lt;a href="#cb1-13" aria-hidden="true" tabindex="-1">&lt;/a> n &lt;span class="op">=&lt;/span> getPrime(&lt;span class="dv">1024&lt;/span>)&lt;/span>
+&lt;span id="cb1-14">&lt;a href="#cb1-14" aria-hidden="true" tabindex="-1">&lt;/a> &lt;span class="cf">assert&lt;/span> m &lt;span class="op">&amp;lt;&lt;/span> n &lt;span class="kw">and&lt;/span> &lt;span class="bu">len&lt;/span>(flag) &lt;span class="op">==&lt;/span> &lt;span class="bu">len&lt;/span>(key)&lt;/span>
+&lt;span id="cb1-15">&lt;a href="#cb1-15" aria-hidden="true" tabindex="-1">&lt;/a>&lt;/span>
+&lt;span id="cb1-16">&lt;a href="#cb1-16" aria-hidden="true" tabindex="-1">&lt;/a> c1 &lt;span class="op">=&lt;/span> long_to_bytes(cipher(k, m, n))&lt;/span>
+&lt;span id="cb1-17">&lt;a href="#cb1-17" aria-hidden="true" tabindex="-1">&lt;/a> c2 &lt;span class="op">=&lt;/span> xor(key, flag)&lt;/span>
+&lt;span id="cb1-18">&lt;a href="#cb1-18" aria-hidden="true" tabindex="-1">&lt;/a>&lt;/span>
+&lt;span id="cb1-19">&lt;a href="#cb1-19" aria-hidden="true" tabindex="-1">&lt;/a> &lt;span class="bu">print&lt;/span>(&lt;span class="st">&amp;quot;c1 =&amp;quot;&lt;/span>, base64.b64encode(c1).decode())&lt;/span>
+&lt;span id="cb1-20">&lt;a href="#cb1-20" aria-hidden="true" tabindex="-1">&lt;/a> &lt;span class="bu">print&lt;/span>(&lt;span class="st">&amp;quot;c2 =&amp;quot;&lt;/span>, base64.b64encode(c2).decode())&lt;/span>
+&lt;span id="cb1-21">&lt;a href="#cb1-21" aria-hidden="true" tabindex="-1">&lt;/a> &lt;span class="bu">print&lt;/span>(&lt;span class="st">&amp;quot;n =&amp;quot;&lt;/span>, n)&lt;/span>
+&lt;span id="cb1-22">&lt;a href="#cb1-22" aria-hidden="true" tabindex="-1">&lt;/a>&lt;/span>
+&lt;span id="cb1-23">&lt;a href="#cb1-23" aria-hidden="true" tabindex="-1">&lt;/a>&lt;span class="cf">if&lt;/span> &lt;span class="va">__name__&lt;/span> &lt;span class="op">==&lt;/span> &lt;span class="st">&amp;#39;__main__&amp;#39;&lt;/span>:&lt;/span>
+&lt;span id="cb1-24">&lt;a href="#cb1-24" aria-hidden="true" tabindex="-1">&lt;/a> main()&lt;/span>&lt;/code>&lt;/pr</description></item></channel></rss>

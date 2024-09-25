@@ -1,0 +1,138 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,minimum-scale=1,initial-scale=1"><link rel=stylesheet href=/markdown.css><link rel=stylesheet href=/highlight.css><title>BITSCTF 2024 Writeups | CTF Writeups</title>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js crossorigin=anonymous></script><script>window.onload=()=>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"\\[",right:"\\]",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1}]})</script></head><script>addEventListener("load",()=>{console.log("nothing to see here yo")},!1)</script><body><article class=container><div class=title>BITSCTF 2024 Writeups</div><div class=date>Jan 29, 2024</div><p>My team got the 5th place which is out of our expectation, although
+we are 10 points away from getting a prize. Here’s the writeups for some
+challenges I found interesting.</p><h2 id=baby-rsa>Baby RSA</h2><p>In short: just another implementation of the standard RSA algorithm.
+But instead of operating on the multiplicative group of integers modulo
+<span class="math inline">\(n\)</span> (<span class="math inline">\(\Z^{\times}_n\)</span>), it operates on the
+<strong>general linear group</strong> of 2x2 matrices (<span class="math inline">\(\mathrm{GL}_2(R)\)</span>), over the <strong>ring
+of integers modulo <span class="math inline">\(n\)</span></strong>
+(<span class="math inline">\(\Z/n\Z\)</span>), and matrix multiplication
+acts as the group operation. The flag is divided into 4 parts of equal
+length and are assembled into a 2x2 matrix:</p><p><span class="math display">\[C = M^e \mod n \]</span></p><p>where <span class="math inline">\(C, M \in
+\mathrm{GL}_2(\Z/n\Z)\)</span>. And as always, we’re given <span class="math inline">\(C\)</span>, <span class="math inline">\(e\)</span>, and <span class="math inline">\(n\)</span>. To clear up any confusion, the <span class="math inline">\(k\)</span><sup>th</sup> power of a matrix is
+defined as the matrix multiplied by itself <span class="math inline">\(k\)</span> times.</p><p>Does the RSA decryption algorithm still work in this case? Recall
+that the correctness of RSA relies on <strong>Euler’s
+theorem</strong>:</p><p><span class="math display">\[ M^{\phi(n)} \equiv 1 \mod n
+\]</span></p><p>where <span class="math inline">\(\phi(n)\)</span> is the Euler’s
+totient function.</p><p>The key is to notice that <strong>Euler’s theorem</strong> holds for
+any group <span class="math inline">\(G\)</span> with <span class="math inline">\(|G|\)</span> as the exponent, since it is a
+consequence of <strong>Lagrange’s theorem</strong> (the order of any
+subgroup divides <span class="math inline">\(|G|\)</span>). In the
+everyday version of RSA, the group is <span class="math inline">\(\Z^{*}_n\)</span> with <span class="math inline">\(|\Z^{*}_n| = \phi(n) = (p-1)(q-1)\)</span>. But
+since we’re working with a totally different group, <span class="math inline">\(|G|\)</span> could be another number.</p><p>How do we figure out the order of the group <span class="math inline">\(\mathrm{GL}_2(\Z/n\Z)\)</span>? Well, you can
+either work it out yourself or look it up. I found this wikipedia entry
+to be helpful: <img src=/bitsctf/image-1.png alt="alt text"> and
+also this post: <img src=/bitsctf/se.png alt="alt text"></p><p>Therefore we know that <span class="math display">\[
+|\mathrm{GL_2}(\Z/n\Z)| = |\mathrm{GL_2}(\Z/p\Z) \times
+\mathrm{GL_2}(\Z/q\Z)| = |\mathrm{GL_2}(\Z/p\Z)| \cdot
+|\mathrm{GL_2}(\Z/q\Z)| = (p^2 - 1)(p^2 - p)(q^2 - 1)(q^2 - q)
+\]</span></p><p>where <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> are the prime factors of <span class="math inline">\(n\)</span>.</p><h3 id=solution>Solution</h3><ol type=1><li>Factorize <span class="math inline">\(n\)</span> into <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span> with <a href="http://factordb.com/index.php?query=23036769723266886125458649758956702648712087220176816714653838673509877792118247880199359383510351312176460013557289096284919848198450380140055143077150138568183361851259869327791757963071569189728166204980100709764185330342160274626199317196467443629331873914435565361740711829939685538189329988893139409587357168398853766369829738504476214206419533085521724453948450717252383742145150063213519788568096297255648618658652421978414668802766216274568505191139490500068196963713850595634438745810451971497700218653640156817206666005050648173171079623763116133293956506581891112418298346805489471936353543559531981211007">factordb</a></li><li>Calculate the private exponent <span class="math inline">\(d =
+e^{-1} \mod |\mathrm{GL_2}(\Z/n\Z)|\)</span>, where <span class="math inline">\(|\mathrm{GL_2}(\Z/n\Z)| = (p^2 - 1)(p^2 - p)(q^2 -
+1)(q^2 - q)\)</span></li><li>Compute <span class="math inline">\(M = C^d \mod n\)</span> and
+convert the 2x2 matrix into a string.</li></ol><div class=sourceCode id=cb1><pre class="sourceCode py"><code class="sourceCode python"><span id=cb1-1><a href=#cb1-1 aria-hidden=true tabindex=-1></a><span class=im>from</span> sage.<span class=bu>all</span> <span class=im>import</span> Zmod, matrix</span>
+<span id=cb1-2><a href=#cb1-2 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-3><a href=#cb1-3 aria-hidden=true tabindex=-1></a>N <span class=op>=</span> <span class=dv>23036769723266886125458649758956702648712087220176816714653838673509877792118247880199359383510351312176460013557289096284919848198450380140055143077150138568183361851259869327791757963071569189728166204980100709764185330342160274626199317196467443629331873914435565361740711829939685538189329988893139409587357168398853766369829738504476214206419533085521724453948450717252383742145150063213519788568096297255648618658652421978414668802766216274568505191139490500068196963713850595634438745810451971497700218653640156817206666005050648173171079623763116133293956506581891112418298346805489471936353543559531981211007</span></span>
+<span id=cb1-4><a href=#cb1-4 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-5><a href=#cb1-5 aria-hidden=true tabindex=-1></a>p <span class=op>=</span> <span class=dv>142753777417406810805072041989903711850167885799807517849278708651169396646976000865163313860950535511049508198208303464027395072922054180911222963584032655378369512823722235617080276310818723368812500206379762931650041566049091705857347865200497666530004056146401044724048482323535857808462375833056005919409</span></span>
+<span id=cb1-6><a href=#cb1-6 aria-hidden=true tabindex=-1></a>q <span class=op>=</span> <span class=dv>161374151633887880567835370500866534479212949279686527346042474641768055324964720409600075821784325443977565511087794614167314642076253331252646071422351727785801273964216434051992658005517462757428567737089311219316483995316413254806332369908230656600378302043303884997949582553596892625743238461113701189423</span></span>
+<span id=cb1-7><a href=#cb1-7 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-8><a href=#cb1-8 aria-hidden=true tabindex=-1></a>m1 <span class=op>=</span> <span class=dv>1688577118446994385968395107806136174557142107804975322078207849525996285555656260206580838013574154251970203340703172180307805295789863681283046955877515739613672185613439469419425659032767602825819847219860905891392664014905971901451235627837496286542641845303536183734346369265871928783878050715880767075204893640825827066572492472864317363779978890211475665989661613794835422235110473900325805989480105707322458100086102303069248435024193963568479630095651085817172713153787750186709036320119742855813602544679565063074620877551442333603722559931510193751993188654930045306930807753396090518988163885812861328189</span></span>
+<span id=cb1-9><a href=#cb1-9 aria-hidden=true tabindex=-1></a>m2 <span class=op>=</span> <span class=dv>18606463074580041693118069235767195213344066322201243933010124107272334567447663310708859928135248241928811046109792797329702178779044479338641854986887585852036771229299545163561638784460129107079511967710507982185476509331836514884444253942126004228635338987949444364518676287270400269043532256579176612622679395079052278682848464034157076964064322042035138509130313802613501396522880243712216854338598648367312720616782393105428479703623071360086057689649365178333773145772588572015939657826398962685161288423080270520975839574982048787013451521127610126137432250909569570414617885182251535827422178518761878640277</span></span>
+<span id=cb1-10><a href=#cb1-10 aria-hidden=true tabindex=-1></a>m3 <span class=op>=</span> <span class=dv>22650267491831158961493494945635419844978993992819562614030880303587890478134180756396307352921983637402503752225448743686715822967217573439050236903594508595369091970111469500428669690977435841418094876487761793949578523234589853571632054703229482334937567369737020238048709571084522258359213151775018534100702058932510299117617733363931262015526536137995495014561936341027015204484556877558726525974581334282869767778621415848776011642380798198145859047068171891683277816103814122546549427956819314641580598561780283977143766729878132075206011816915101647516926375041348314081517895281616142461484593652580056221170</span></span>
+<span id=cb1-11><a href=#cb1-11 aria-hidden=true tabindex=-1></a>m4 <span class=op>=</span> <span class=dv>21918251154970082314222727740598056021059485736289135003915749232429908966741747423007921579944599958250485131086510119153324415101442340819161587864992420876845822880037498353379555319411381764829992580481479390290007103089320444053573660373539839479887140094345654253438765837610846183906780001563278053108924452477590722136992300951542317836042467648565676610116549645312286546804494679220834545780288823406596099528171318966103110446627459454678950065440952742712213009905322683034224640705258686542355943237539849218298957686667728849048771501755939158694731521586755665323051264657459810178627357183164938178482</span></span>
+<span id=cb1-12><a href=#cb1-12 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-13><a href=#cb1-13 aria-hidden=true tabindex=-1></a><span class=kw>def</span> int_to_bytes(x: <span class=bu>int</span>) <span class=op>-&gt;</span> <span class=bu>bytes</span>:</span>
+<span id=cb1-14><a href=#cb1-14 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> x.to_bytes((x.bit_length() <span class=op>+</span> <span class=dv>7</span>) <span class=op>//</span> <span class=dv>8</span>, <span class=st>&#39;big&#39;</span>)</span>
+<span id=cb1-15><a href=#cb1-15 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-16><a href=#cb1-16 aria-hidden=true tabindex=-1></a>mat <span class=op>=</span> matrix(Zmod(N), [[m1, m2], [m3, m4]])</span>
+<span id=cb1-17><a href=#cb1-17 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-18><a href=#cb1-18 aria-hidden=true tabindex=-1></a>e <span class=op>=</span> <span class=dv>65537</span></span>
+<span id=cb1-19><a href=#cb1-19 aria-hidden=true tabindex=-1></a>d <span class=op>=</span> <span class=bu>pow</span>(e, <span class=op>-</span><span class=dv>1</span>, (p<span class=op>**</span><span class=dv>2</span><span class=op>-</span><span class=dv>1</span>)<span class=op>*</span>(p<span class=op>**</span><span class=dv>2</span><span class=op>-</span>p)<span class=op>*</span>(q<span class=op>**</span><span class=dv>2</span><span class=op>-</span><span class=dv>1</span>)<span class=op>*</span>(q<span class=op>**</span><span class=dv>2</span><span class=op>-</span>q))</span>
+<span id=cb1-20><a href=#cb1-20 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-21><a href=#cb1-21 aria-hidden=true tabindex=-1></a>dec <span class=op>=</span> mat <span class=op>**</span> d</span>
+<span id=cb1-22><a href=#cb1-22 aria-hidden=true tabindex=-1></a><span class=cf>for</span> col <span class=kw>in</span> dec:</span>
+<span id=cb1-23><a href=#cb1-23 aria-hidden=true tabindex=-1></a>    <span class=cf>for</span> i <span class=kw>in</span> col:</span>
+<span id=cb1-24><a href=#cb1-24 aria-hidden=true tabindex=-1></a>        <span class=bu>print</span>(int_to_bytes(<span class=bu>int</span>(i)).decode(), end<span class=op>=</span><span class=st>&#39;&#39;</span>)</span></code></pre></div><h2 id=combinatorial-conundrum>Combinatorial Conundrum</h2><p>We’re given a list of unknown integers <span class="math inline">\(x_1\)</span>, <span class="math inline">\(x_2\)</span>, …, <span class="math inline">\(x_{26}\)</span>, with a constraint <span class="math inline">\(a_i \lt x_i \leq b_i\)</span> for each of them.
+The goal is to find the number of solutions <span class="math inline">\((x_1, x_2, ..., x_{26})\)</span> to the equation
+<span class="math inline">\(x_1 + x_2 + \cdots + x_{26} =
+69696969\)</span>.</p><p>There are a couple tricks to simplify this problem. The first thing I
+did is to substiture <span class="math inline">\(y_i\)</span> for <span class="math inline">\(x_i - a_i\)</span>, and the equation becomes <span class="math inline">\(y_1 + y_2 + \cdots + y_{26} = 69696969 - (a_1 +
+a_2 + \cdots + a_{26})\)</span>. The constraints are then much easier to
+work with: <span class="math inline">\(0 \leq y_i \lt b_i -
+a_i\)</span>.</p><p>So is there a general formula for this problem? <a href=https://math.stackexchange.com/questions/780969/number-of-binary-strings-containing-at-least-n-consecutive-1#answer-781265>The
+closest I could find</a> is when <span class="math inline">\(b_i -
+a_i\)</span> is constant for all <span class="math inline">\(i\)</span>,
+but it is not at all the case here. Smells like a dynamic programming
+problem. (Please enlighten me if you know the name of this problem)</p><p>Let’s look at a simpler version of the problem: <span class="math inline">\(y_1 + y_2 + y_3 = 8\)</span>, with <span class="math inline">\(0 \leq y_1 \lt 4\)</span> and <span class="math inline">\(0 \leq y_2 \lt 6\)</span> and <span class="math inline">\(0 \leq y_3 \lt 5\)</span>. We can draw a table
+starting with <span class="math inline">\(y_1 + y_2\)</span>:</p><figure><img src=/bitsctf/t1.png width=350 alt="alt text"><figcaption aria-hidden=true>alt text</figcaption></figure><p>Simple right? The count <span class="math inline">\(C_1(s)\)</span>
+of each sum <span class="math inline">\(s\)</span> in the table
+increases for <span class="math inline">\(s &lt; 4\)</span>, stays the
+same for <span class="math inline">\(4 \leq s \lt 6\)</span>, and
+decreases for <span class="math inline">\(s \geq 6\)</span>. Now what
+happens when we add <span class="math inline">\(y_3\)</span>? each
+column of the table is now <em>weighted</em> by <span class="math inline">\(c_s\)</span>:</p><figure><img src=/bitsctf/t2.png width=600 alt="I really need a better drawing app"><figcaption aria-hidden=true>I really need a better drawing
+app</figcaption></figure><p>The number of solutions <span class="math inline">\(C_2(s)\)</span>
+summing to <span class="math inline">\(s\)</span> is now the sum of all
+<span class="math inline">\(C_1(k)\)</span>, where each column labeled
+<span class="math inline">\(k\)</span> contains <span class="math inline">\(s\)</span>:</p><p><span class="math display">\[ C_2(s) = \begin{cases}
+C_2(0) & \text{if } s = 0 \\
+C_2(s-1) + C_1(s) & \text{if } 0 \leq s &lt; L_3 \\
+C_2(s-1) + C_1(s) - C_1(s-L_3) & \text{if } L_3 \leq s &lt; L_2 \\
+C_2(s-1) - C_1(s-L_3) & \text{if } s \geq L_2 \\
+\end{cases}
+\]</span></p><p>where <span class="math inline">\(0 \leq y_1 + y_2 &lt; L_2 =
+9\)</span> and <span class="math inline">\(0 \leq y_3 &lt; L_3 =
+5\)</span>. Then <span class="math inline">\(C_2(8)\)</span> is the
+number of solutions to <span class="math inline">\(y_1 + y_2 + y_3 =
+8\)</span>. Keep in mind the formula asserts that <span class="math inline">\(L_2 \geq L_3\)</span>.</p><p>If we extend this to 26 variables, the general formula for obtaining
+<span class="math inline">\(C_{i+1}(s)\)</span> from <span class="math inline">\(C_i(s)\)</span> for <span class="math inline">\(0
+&lt; i &lt; 26\)</span> is pretty obvious. And to optimize the running
+time, the result of <span class="math inline">\(C_i(s)\)</span> can be
+stored in an array to be used in the next iteration. The array could be
+trimmed to size <span class="math inline">\(69696969 - (a_1 + a_2 +
+\cdots + a_{26}) + 1\)</span> since the values past it are not needed as
+they are too large for the sum.</p><h3 id=solution-1>Solution</h3><div class=sourceCode id=cb2><pre class="sourceCode py"><code class="sourceCode python"><span id=cb2-1><a href=#cb2-1 aria-hidden=true tabindex=-1></a>lower_bounds <span class=op>=</span> [</span>
+<span id=cb2-2><a href=#cb2-2 aria-hidden=true tabindex=-1></a>    <span class=dv>2008</span>, <span class=dv>5828</span>, <span class=dv>2933</span>, <span class=dv>411</span>, <span class=dv>4223</span>, <span class=dv>1614</span>, <span class=dv>5679</span>, <span class=dv>6349</span>, <span class=dv>117</span>, <span class=dv>2321</span>, <span class=dv>2281</span>, <span class=dv>1939</span>, <span class=dv>6273</span>, <span class=dv>1477</span>, <span class=dv>800</span>, <span class=dv>4727</span>, <span class=dv>2828</span>, <span class=dv>1782</span>, <span class=dv>1744</span>, <span class=dv>2486</span>, <span class=dv>6312</span>, <span class=dv>2188</span>, <span class=dv>5380</span>, <span class=dv>1772</span>, <span class=dv>2708</span>, <span class=dv>1528</span></span>
+<span id=cb2-3><a href=#cb2-3 aria-hidden=true tabindex=-1></a>]</span>
+<span id=cb2-4><a href=#cb2-4 aria-hidden=true tabindex=-1></a><span class=cf>assert</span> <span class=bu>len</span>(lower_bounds) <span class=op>==</span> <span class=dv>26</span></span>
+<span id=cb2-5><a href=#cb2-5 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-6><a href=#cb2-6 aria-hidden=true tabindex=-1></a>upper_bounds <span class=op>=</span> [</span>
+<span id=cb2-7><a href=#cb2-7 aria-hidden=true tabindex=-1></a>    <span class=dv>67434882</span>, <span class=dv>35387831</span>, <span class=dv>30133881</span>, <span class=dv>63609725</span>, <span class=dv>18566959</span>, <span class=dv>25526751</span>, <span class=dv>44298843</span>, <span class=dv>26793895</span>, <span class=dv>40292840</span>, <span class=dv>42293336</span>, <span class=dv>26301527</span>, <span class=dv>50793633</span>, <span class=dv>51546489</span>, <span class=dv>36871159</span>, <span class=dv>65314188</span>, <span class=dv>15882817</span>, <span class=dv>40562779</span>, <span class=dv>48186923</span>, <span class=dv>37382713</span>, <span class=dv>56149154</span>, <span class=dv>18170199</span>, <span class=dv>63940428</span>, <span class=dv>58244044</span>, <span class=dv>29193116</span>, <span class=dv>22309445</span>, <span class=dv>40848052</span></span>
+<span id=cb2-8><a href=#cb2-8 aria-hidden=true tabindex=-1></a>]</span>
+<span id=cb2-9><a href=#cb2-9 aria-hidden=true tabindex=-1></a><span class=cf>assert</span> <span class=bu>len</span>(upper_bounds) <span class=op>==</span> <span class=dv>26</span></span>
+<span id=cb2-10><a href=#cb2-10 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-11><a href=#cb2-11 aria-hidden=true tabindex=-1></a>target <span class=op>=</span> <span class=dv>69696969</span> <span class=op>-</span> <span class=bu>sum</span>(lower_bounds)</span>
+<span id=cb2-12><a href=#cb2-12 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-13><a href=#cb2-13 aria-hidden=true tabindex=-1></a>bounds <span class=op>=</span> [u <span class=op>-</span> l <span class=cf>for</span> l, u <span class=kw>in</span> <span class=bu>zip</span>(lower_bounds, upper_bounds)]</span>
+<span id=cb2-14><a href=#cb2-14 aria-hidden=true tabindex=-1></a>bounds <span class=op>=</span> <span class=bu>sorted</span>(bounds)</span>
+<span id=cb2-15><a href=#cb2-15 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-16><a href=#cb2-16 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(bounds)</span>
+<span id=cb2-17><a href=#cb2-17 aria-hidden=true tabindex=-1></a><span class=cf>assert</span> <span class=bu>len</span>(bounds) <span class=op>==</span> <span class=dv>26</span></span>
+<span id=cb2-18><a href=#cb2-18 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-19><a href=#cb2-19 aria-hidden=true tabindex=-1></a><span class=kw>def</span> combs(target, bounds):</span>
+<span id=cb2-20><a href=#cb2-20 aria-hidden=true tabindex=-1></a>    bounds <span class=op>=</span> <span class=bu>sorted</span>(bounds, reverse<span class=op>=</span><span class=va>True</span>)</span>
+<span id=cb2-21><a href=#cb2-21 aria-hidden=true tabindex=-1></a>    prev_counts <span class=op>=</span> [<span class=dv>1</span>] <span class=op>*</span> bounds[<span class=dv>0</span>] <span class=op>+</span> [<span class=dv>0</span>] <span class=op>*</span> (target <span class=op>+</span> <span class=dv>1</span> <span class=op>-</span> bounds[<span class=dv>0</span>])</span>
+<span id=cb2-22><a href=#cb2-22 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-23><a href=#cb2-23 aria-hidden=true tabindex=-1></a>    <span class=cf>for</span> n <span class=kw>in</span> <span class=bu>range</span>(<span class=dv>1</span>, <span class=bu>len</span>(bounds)):</span>
+<span id=cb2-24><a href=#cb2-24 aria-hidden=true tabindex=-1></a>        <span class=bu>print</span>(<span class=st>&#39;n =&#39;</span>, n, <span class=st>&#39;, bound:&#39;</span>, bounds[n])</span>
+<span id=cb2-25><a href=#cb2-25 aria-hidden=true tabindex=-1></a>        counts <span class=op>=</span> [<span class=dv>0</span>] <span class=op>*</span> (target <span class=op>+</span> <span class=dv>1</span>)</span>
+<span id=cb2-26><a href=#cb2-26 aria-hidden=true tabindex=-1></a>        <span class=cf>for</span> i <span class=kw>in</span> <span class=bu>range</span>(target <span class=op>+</span> <span class=dv>1</span>):</span>
+<span id=cb2-27><a href=#cb2-27 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-28><a href=#cb2-28 aria-hidden=true tabindex=-1></a>            <span class=cf>if</span> i <span class=op>==</span> <span class=dv>0</span>:</span>
+<span id=cb2-29><a href=#cb2-29 aria-hidden=true tabindex=-1></a>                counts[i] <span class=op>=</span> prev_counts[<span class=dv>0</span>]</span>
+<span id=cb2-30><a href=#cb2-30 aria-hidden=true tabindex=-1></a>            <span class=cf>if</span> i <span class=op>&lt;</span> bounds[n]:</span>
+<span id=cb2-31><a href=#cb2-31 aria-hidden=true tabindex=-1></a>                counts[i] <span class=op>=</span> counts[i <span class=op>-</span> <span class=dv>1</span>] <span class=op>+</span> prev_counts[i]</span>
+<span id=cb2-32><a href=#cb2-32 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-33><a href=#cb2-33 aria-hidden=true tabindex=-1></a>            <span class=cf>else</span>:</span>
+<span id=cb2-34><a href=#cb2-34 aria-hidden=true tabindex=-1></a>                counts[i] <span class=op>=</span> counts[i <span class=op>-</span> <span class=dv>1</span>] <span class=op>-</span> <span class=op>\</span></span>
+<span id=cb2-35><a href=#cb2-35 aria-hidden=true tabindex=-1></a>                    prev_counts[i <span class=op>-</span> bounds[n]] <span class=op>+</span> prev_counts[i]</span>
+<span id=cb2-36><a href=#cb2-36 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-37><a href=#cb2-37 aria-hidden=true tabindex=-1></a>        prev_counts <span class=op>=</span> counts</span>
+<span id=cb2-38><a href=#cb2-38 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-39><a href=#cb2-39 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> counts[target]</span>
+<span id=cb2-40><a href=#cb2-40 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-41><a href=#cb2-41 aria-hidden=true tabindex=-1></a></span>
+<span id=cb2-42><a href=#cb2-42 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&#39;target:&#39;</span>, target)</span>
+<span id=cb2-43><a href=#cb2-43 aria-hidden=true tabindex=-1></a>count <span class=op>=</span> combs(target, bounds)</span>
+<span id=cb2-44><a href=#cb2-44 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(count )</span>
+<span id=cb2-45><a href=#cb2-45 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&#39;Answer: &#39;</span>, count <span class=op>%</span> <span class=dv>69696969</span>)</span></code></pre></div><footer><span class=static>Powered by <a href=https://gohugo.io/>Hugo</a></span><br><span class=static>Emojis from <a href=https://blob.cat/>blob.cat</a></span></footer></article></body></html>
